@@ -39,12 +39,7 @@ if ($LASTEXITCODE -eq 0) {
     throw "Release $tag already exists. Bump Version in Keirohi.App.csproj first."
 }
 
-gh release create $tag $setup --title "交通費入力 v$version" --notes @"
-## 交通費入力 v$version
-
-- インストール用 Setup（オンライン更新の配布物）
-- 設定の「更新を確認」、または起動時に新しい版があれば案内します
-- 更新するとアプリは自動で再起動します
-"@
+$notes = "Keirohi v$version setup. Install, then use Settings or the startup prompt to update. The app restarts after an update."
+gh release create $tag $setup --title "Keirohi v$version" --notes $notes
 
 Write-Host "Release created: $tag"
