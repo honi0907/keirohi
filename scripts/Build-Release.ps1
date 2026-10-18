@@ -34,8 +34,12 @@ if ($SkipGitHub) {
 
 $tag = "v$version"
 Write-Host "== GitHub Release $tag =="
+$previousErrorAction = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
 gh release view $tag 2>$null | Out-Null
-if ($LASTEXITCODE -eq 0) {
+$viewCode = $LASTEXITCODE
+$ErrorActionPreference = $previousErrorAction
+if ($viewCode -eq 0) {
     throw "Release $tag already exists. Bump Version in Keirohi.App.csproj first."
 }
 
