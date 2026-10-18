@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Keirohi_App.Controls.RoutePatternEditorPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Keirohi_App.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    HorizontalAlignment="Stretch"
+    mc:Ignorable="d">
+
+    <StackPanel HorizontalAlignment="Stretch" MaxWidth="672" Spacing="10">
+        <controls:InlineMessageBanner x:Name="SaveMessageBanner" />
+
+        <TextBox
+            x:Name="PatternNameBox"
+            HorizontalAlignment="Stretch"
+            Header="パターン名（目的地にも使用）"
+            PlaceholderText="例: 自宅→センター"
+            TextChanged="PatternNameBox_TextChanged" />
+
+        <StackPanel Spacing="4">
+            <TextBlock Text="区間（上から順に登録）" />
+            <TextBlock
+                Opacity="0.75"
+                FontSize="12"
+                Text="各区間の枠内で経路と運賃を編集します。運賃が 0 または空のときは自動推定します。"
+                TextWrapping="WrapWholeWords" />
+        </StackPanel>
+
+        <StackPanel x:Name="LegsPanel" Spacing="10" />
+
+        <StackPanel HorizontalAlignment="Stretch" Spacing="8">
+            <Button Click="AddLeg_Click" HorizontalAlignment="Stretch" Content="区間を追加" />
+            <Button
+                Click="CreateReverse_Click"
+                HorizontalAlignment="Stretch"
+                Content="逆パターンにする"
+                ToolTipService.ToolTip="選択中のパターン名と区間を反転します（一覧に新規追加はしません）" />
+            <Button
+                Click="SavePatterns_Click"
+                HorizontalAlignment="Stretch"
+                Content="パターンを保存"
+                Style="{StaticResource AccentButtonStyle}" />
+        </StackPanel>
+    </StackPanel>
+</UserControl>

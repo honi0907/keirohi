@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "Keirohi.App (Unpackaged)": {
+      "commandName": "Project"
+    },
+    "Keirohi.App (Package)": {
+      "commandName": "MsixPackage"
+    }
+  },
+  "defaultProfile": "Keirohi.App (Unpackaged)"
+}

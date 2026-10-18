@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Keirohi_App.Pages.ExportPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="16,12,16,20">
+        <StackPanel MaxWidth="400" HorizontalAlignment="Stretch" Spacing="12">
+            <TextBlock x:Name="PeriodText" TextWrapping="WrapWholeWords" />
+
+            <Button Click="ExportCsv_Click" Content="楽楽精算 CSV を保存" Style="{StaticResource AccentButtonStyle}" />
+            <Button Click="ExportExcel_Click" Content="モバイル Suica Excel を保存" />
+            <Button Click="ExportBoth_Click" Content="CSV + Excel を一括保存（同じフォルダ）" />
+            <Button Click="ImportCsv_Click" Content="楽楽精算 CSV を取り込み（追加）" />
+
+            <TextBlock
+                Opacity="0.75"
+                Text="右側のコンボで保存セットを切り替えられます。出力・プレビューは選択中のセットが対象です。"
+                TextWrapping="WrapWholeWords" />
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -1,0 +1,11 @@
+_ref/
+dist/
+app/
+pdf-compare/
+*.pdf
+交通費.xlsx
+
+Keirohi.WinUI/bin/
+Keirohi.WinUI/obj/
+Keirohi.WinUI/.vs/
+*.user

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Keirohi_App.Pages.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <ScrollViewer Padding="16,12,16,20">
+        <StackPanel MaxWidth="400" HorizontalAlignment="Stretch" Spacing="12">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="設定" />
+            <TextBox x:Name="CardLabelBox" Header="Suica カード表示（明細右上）" />
+            <CalendarDatePicker
+                x:Name="StatementDatePicker"
+                HorizontalAlignment="Stretch"
+                Header="明細下段の日付"
+                IsTodayHighlighted="True"
+                PlaceholderText="日付を選択" />
+            <ToggleSwitch
+                x:Name="AutoFillFareToggle"
+                Header="運賃の自動入力"
+                OffContent="オフ"
+                OnContent="オン" />
+            <TextBlock
+                Opacity="0.75"
+                Text="オンにすると、出発・到着の入力時に過去に覚えた運賃を金額欄へ入れます。一度入力した区間の金額は自動で記憶され、手動で直した場合も上書きして記憶します。"
+                TextWrapping="WrapWholeWords" />
+            <Button Click="Save_Click" Content="保存" Style="{StaticResource AccentButtonStyle}" />
+            <Border
+                Padding="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="{StaticResource KeirohiCardBorderThickness}"
+                CornerRadius="8">
+                <StackPanel Spacing="8">
+                    <TextBlock FontWeight="SemiBold" Text="オンライン更新" />
+                    <TextBlock x:Name="VersionText" Opacity="0.8" TextWrapping="WrapWholeWords" />
+                    <Button
+                        x:Name="CheckUpdateButton"
+                        Click="CheckUpdate_Click"
+                        Content="更新を確認" />
+                    <TextBlock
+                        x:Name="UpdateStatusText"
+                        Opacity="0.75"
+                        TextWrapping="WrapWholeWords" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>
