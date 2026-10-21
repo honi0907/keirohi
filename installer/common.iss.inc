@@ -44,7 +44,7 @@ PrivilegesRequired=admin
 WizardStyle=modern
 ShowLanguageDialog=no
 CloseApplications=yes
-RestartApplications=no
+RestartApplications=yes
 VersionInfoVersion={#AppVersion}.0
 
 [Languages]
@@ -61,4 +61,4 @@ Name: "{group}\{#AppDisplayName}"; Filename: "{app}\{#AppExe}"
 Name: "{autodesktop}\{#AppDisplayName}"; Filename: "{app}\{#AppExe}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#AppExe}"; Description: "{#AppDisplayName} を起動する"; Flags: nowait postinstall
+Filename: "{app}\{#AppExe}"; Description: "{#AppDisplayName} を起動する"; WorkingDir: "{app}"; Flags: nowait postinstall runascurrentuser skipifsilent

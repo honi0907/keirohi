@@ -91,7 +91,7 @@ public sealed class AppUpdateService
             Process.Start(new ProcessStartInfo
             {
                 FileName = installerPath,
-                Arguments = "/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS",
+                Arguments = "/SILENT /SUPPRESSMSGBOXES /NORESTART /CLOSEAPPLICATIONS /RESTARTAPPLICATIONS",
                 UseShellExecute = true,
                 Verb = "runas",
             });
