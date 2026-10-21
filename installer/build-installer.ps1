@@ -39,9 +39,13 @@ if ([string]::IsNullOrWhiteSpace($Version)) {
 }
 
 $publishDir = Join-Path $dist "publish\win-x64"
-if (-not (Test-Path (Join-Path $publishDir "Keirohi.App.exe"))) {
+$publishExe = Join-Path $publishDir "Keirohi.App.exe"
+if (-not (Test-Path $publishExe)) {
     throw "Publish output not found: $publishDir"
 }
+
+# ショートカットは exe 内のアイコンを使う。公開物へ AppIcon.ico を明示して埋め込む。
+& (Join-Path $root "scripts\Stamp-ExeIcon.ps1") -ExePath $publishExe
 
 $iscc = Find-IsccPath -Override $IsccPath
 if (-not $iscc) {

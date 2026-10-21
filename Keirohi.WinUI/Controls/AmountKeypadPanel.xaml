@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Keirohi_App.Controls.AmountKeypadPanel"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid
+        Padding="4"
+        ColumnSpacing="6"
+        RowSpacing="6">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Button
+            Grid.Row="0"
+            Grid.Column="0"
+            Click="Digit_Click"
+            Content="7"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="7" />
+        <Button
+            Grid.Row="0"
+            Grid.Column="1"
+            Click="Digit_Click"
+            Content="8"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="8" />
+        <Button
+            Grid.Row="0"
+            Grid.Column="2"
+            Click="Digit_Click"
+            Content="9"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="9" />
+        <Button
+            Grid.Row="1"
+            Grid.Column="0"
+            Click="Digit_Click"
+            Content="4"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="4" />
+        <Button
+            Grid.Row="1"
+            Grid.Column="1"
+            Click="Digit_Click"
+            Content="5"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="5" />
+        <Button
+            Grid.Row="1"
+            Grid.Column="2"
+            Click="Digit_Click"
+            Content="6"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="6" />
+        <Button
+            Grid.Row="2"
+            Grid.Column="0"
+            Click="Digit_Click"
+            Content="1"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="1" />
+        <Button
+            Grid.Row="2"
+            Grid.Column="1"
+            Click="Digit_Click"
+            Content="2"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="2" />
+        <Button
+            Grid.Row="2"
+            Grid.Column="2"
+            Click="Digit_Click"
+            Content="3"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="3" />
+        <Button
+            Grid.Row="3"
+            Grid.Column="0"
+            Click="Clear_Click"
+            Content="C"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52" />
+        <Button
+            Grid.Row="3"
+            Grid.Column="1"
+            Click="Digit_Click"
+            Content="0"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52"
+            Tag="0" />
+        <Button
+            Grid.Row="3"
+            Grid.Column="2"
+            Click="Backspace_Click"
+            Content="⌫"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="40"
+            MinWidth="52" />
+        <Button
+            Grid.Row="4"
+            Grid.Column="0"
+            Grid.ColumnSpan="3"
+            Click="Close_Click"
+            Content="閉じる"
+            AllowFocusOnInteraction="False"
+            IsTabStop="False"
+            MinHeight="36" />
+    </Grid>
+</UserControl>

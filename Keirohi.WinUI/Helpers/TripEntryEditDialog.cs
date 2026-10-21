@@ -22,6 +22,7 @@ public static class TripEntryEditDialog
         var depBox = new TextBox { Header = "出発", Text = entry.Departure };
         var arrBox = new TextBox { Header = "到着", Text = entry.Arrival };
         var amountBox = new TextBox { Header = "金額（円）", Text = entry.Amount.ToString() };
+        AmountKeypadAttach.Enable(amountBox);
         var noteBox = new TextBox { Header = "備考", Text = entry.Note, AcceptsReturn = true };
         var modeBox = new ComboBox
         {

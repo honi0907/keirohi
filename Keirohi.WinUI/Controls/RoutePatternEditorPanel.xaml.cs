@@ -237,6 +237,7 @@ public sealed partial class RoutePatternEditorPanel : UserControl
 
             draft.NotifyDraftChanged();
         };
+        AmountKeypadAttach.Enable(amountBox);
         Grid.SetRow(amountBox, 0);
         grid.Children.Add(amountBox);
 

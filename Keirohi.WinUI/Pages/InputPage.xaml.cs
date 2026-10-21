@@ -18,6 +18,7 @@ public sealed partial class InputPage : Page
     public InputPage()
     {
         InitializeComponent();
+        AmountKeypadAttach.Enable(AmountBox);
         fareTimer.Tick += FareTimer_Tick;
     }
 
