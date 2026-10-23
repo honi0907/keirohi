@@ -92,7 +92,8 @@ public sealed partial class SuicaDocumentPreview : UserControl
             var version = contentVersion;
             var page = CreatePrintPageElement();
             PrintHost.Child = page;
-            var scale = XamlRoot?.RasterizationScale ?? 1d;
+            var displayScale = XamlRoot?.RasterizationScale ?? 1d;
+            var scale = Math.Max(displayScale, SuicaLayoutConstants.PrintRasterScale);
             page.Measure(new Size(SuicaLayoutConstants.SheetWidthDip, double.PositiveInfinity));
             var widthDip = Math.Max(1, page.DesiredSize.Width);
             var heightDip = Math.Max(1, page.DesiredSize.Height);
@@ -105,7 +106,7 @@ public sealed partial class SuicaDocumentPreview : UserControl
                 (int)Math.Ceiling(widthDip * scale),
                 (int)Math.Ceiling(heightDip * scale));
             PrintHost.Child = null;
-            var png = await PrintBitmapHelper.ToPngBytesAsync(rendered);
+            var png = await PrintBitmapHelper.ToPngBytesAsync(rendered, 96 * scale);
 
             if (version != contentVersion)
             {
@@ -247,7 +248,7 @@ public sealed partial class SuicaDocumentPreview : UserControl
                     PlaceTripStationCell(rowIndex, 8, entry.Arrival);
                 }
 
-                PlaceAmountCell(rowIndex, entry.Amount.ToString());
+                PlaceAmountCell(rowIndex, DateFormatHelper.FormatSuicaSheetAmount(entry.Amount));
             }
 
             rowIndex++;
@@ -267,7 +268,15 @@ public sealed partial class SuicaDocumentPreview : UserControl
         rowIndex++;
 
         AddRow(SuicaLayoutConstants.RowFooterBottom);
-        PlaceCell(rowIndex, 0, 2, " (1/1)", SuicaLayoutConstants.TableFontPt, true, HorizontalAlignment.Left);
+        PlaceCell(
+            rowIndex,
+            0,
+            2,
+            " (1/1)",
+            SuicaLayoutConstants.TableFontPt,
+            true,
+            HorizontalAlignment.Left,
+            leftInsetDip: SuicaLayoutConstants.PageNumberLeftInsetDip);
         PlaceFooterCompanyCell(rowIndex, "東日本旅客鉄道株式会社");
     }
 
@@ -322,7 +331,9 @@ public sealed partial class SuicaDocumentPreview : UserControl
             SuicaLayoutConstants.TableFontPt,
             true,
             HorizontalAlignment.Center,
-            leftInsetDip: SuicaLayoutConstants.MonthDayLeftInsetDip);
+            leftInsetDip: column == 0
+                ? SuicaLayoutConstants.MonthColumnLeftInsetDip
+                : SuicaLayoutConstants.MonthDayLeftInsetDip);
 
     private void PlaceTripTypeCell(int row, int column, string text) =>
         PlaceCell(

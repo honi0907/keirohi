@@ -383,7 +383,7 @@ public sealed partial class RoutePatternEditorPanel : UserControl
         draft.NotifyEditorWorkingLegsChanged();
     }
 
-    private async void SavePatterns_Click(object sender, RoutedEventArgs e)
+    public async Task SavePatternsAsync()
     {
         var working = EditorWorking;
         var overwriteNames = Selected is not null && working is not null

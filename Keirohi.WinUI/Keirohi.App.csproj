@@ -61,7 +61,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <ProjectReference Include="..\Keirohi.Core\Keirohi.Core.csproj" />
+    <ProjectReference Include="..\Keirohi.Updates\Keirohi.Updates.csproj" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="*" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="*" />

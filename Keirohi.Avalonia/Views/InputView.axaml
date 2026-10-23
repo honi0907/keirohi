@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Keirohi.Avalonia.Views.InputView">
+  <ScrollViewer Padding="16,12,16,24">
+    <StackPanel Spacing="14" MaxWidth="340" HorizontalAlignment="Left">
+      <TextBlock x:Name="LimitText" Foreground="#C42B1C" TextWrapping="Wrap" IsVisible="False"/>
+      <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">
+        <StackPanel Spacing="10">
+          <TextBlock FontSize="16" FontWeight="SemiBold" Text="区間"/>
+          <TextBlock Opacity="0.75" Text="定例ルートは左メニュー「パターン」から登録・明細への一括登録ができます。" TextWrapping="Wrap"/>
+          <CalendarDatePicker x:Name="DatePicker" HorizontalAlignment="Stretch"
+                              MinHeight="36" Watermark="日付を選択" IsTodayHighlighted="True"/>
+          <TextBox x:Name="DestinationBox" Watermark="目的地（精算用）"/>
+          <TextBox x:Name="DepartureBox" Watermark="出発" TextChanged="StationFields_TextChanged"/>
+          <TextBox x:Name="ArrivalBox" Watermark="到着" TextChanged="StationFields_TextChanged"/>
+          <Grid ColumnDefinitions="112,*" MaxWidth="340">
+            <ComboBox x:Name="ModeBox" Grid.Column="0" SelectedIndex="0" SelectionChanged="ModeBox_SelectionChanged">
+              <ComboBoxItem Content="電車" Tag="train"/>
+              <ComboBoxItem Content="バス等" Tag="bus"/>
+            </ComboBox>
+            <TextBox x:Name="AmountBox" Grid.Column="1" Margin="8,0,0,0" Watermark="金額（円）"
+                     TextChanged="AmountBox_TextChanged" LostFocus="AmountBox_LostFocus"/>
+          </Grid>
+          <TextBlock x:Name="FareHint" Opacity="0.7" TextWrapping="Wrap"/>
+          <Button Content="Yahoo!乗換案内で調べる（APIキー不要）" HorizontalAlignment="Left" Click="OpenYahooTransit_Click"/>
+          <TextBox x:Name="NoteBox" Watermark="備考" AcceptsReturn="True" MinHeight="60"/>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

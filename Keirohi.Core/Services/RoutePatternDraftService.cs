@@ -1,12 +1,19 @@
-using Keirohi_App.Helpers;
 using Keirohi_App.Models;
 
 namespace Keirohi_App.Services;
 
 public sealed class RoutePatternDraftService
 {
+    private readonly Func<AppStateService> getState;
     private readonly List<RoutePattern> draft = [];
     private bool loaded;
+
+    public RoutePatternDraftService(Func<AppStateService> getState)
+    {
+        this.getState = getState;
+    }
+
+    private AppStateService State => getState();
 
     public event EventHandler? Changed;
 
@@ -31,7 +38,7 @@ public sealed class RoutePatternDraftService
             return PatternDraftSaveState.EmptyDraft;
         }
 
-        var savedById = App.State.Patterns.ToDictionary(p => p.Id);
+        var savedById = State.Patterns.ToDictionary(p => p.Id);
         if (!savedById.TryGetValue(pattern.Id, out var saved))
         {
             return PatternDraftSaveState.New;
@@ -57,7 +64,7 @@ public sealed class RoutePatternDraftService
     {
         var previousSelectedId = Selected?.Id;
         draft.Clear();
-        foreach (var p in App.State.Patterns)
+        foreach (var p in State.Patterns)
         {
             draft.Add(ClonePattern(p));
         }
@@ -212,7 +219,7 @@ public sealed class RoutePatternDraftService
     {
         NormalizeDraftRows();
         var toSave = draft.Where(IsSavable).Select(ClonePattern).ToList();
-        App.State.UpdatePatterns(toSave);
+        State.UpdatePatterns(toSave);
         NotifyDraftChanged();
     }
 
@@ -243,7 +250,7 @@ public sealed class RoutePatternDraftService
         RoutePattern? editorOverlay = null,
         RoutePattern? editorTarget = null)
     {
-        var savedById = App.State.Patterns.ToDictionary(p => p.Id);
+        var savedById = State.Patterns.ToDictionary(p => p.Id);
         var names = new List<string>();
         foreach (var p in draft.Where(IsSavable))
         {
@@ -266,7 +273,7 @@ public sealed class RoutePatternDraftService
     /// </summary>
     public (int AddedCount, string? LastAddedPatternId) SaveChangedPatternsAsSeparate()
     {
-        var savedById = App.State.Patterns.ToDictionary(p => p.Id);
+        var savedById = State.Patterns.ToDictionary(p => p.Id);
         var added = new List<RoutePattern>();
 
         foreach (var p in draft.Where(IsSavable).ToList())
@@ -305,7 +312,7 @@ public sealed class RoutePatternDraftService
         var focusId = selectPatternIdAfter ?? Selected?.Id;
         var toSave = draft.Where(IsSavable).Select(ClonePattern).ToList();
 
-        App.State.UpdatePatterns(toSave);
+        State.UpdatePatterns(toSave);
         ApplySavedPatternsToDraftInPlace(toSave);
 
         var next = !string.IsNullOrEmpty(focusId)

@@ -7,7 +7,7 @@ public partial class App : Application
 {
     public static AppStateService State { get; } = new();
 
-    public static RoutePatternDraftService RoutePatternDraft { get; } = new();
+    public static RoutePatternDraftService RoutePatternDraft { get; } = new(() => State);
 
     public static MainWindow? MainWindowInstance { get; private set; }
 

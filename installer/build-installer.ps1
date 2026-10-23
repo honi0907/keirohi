@@ -1,7 +1,9 @@
 param(
     [string]$Version = "",
     [string]$DistDir = "",
-    [string]$IsccPath = ""
+    [string]$IsccPath = "",
+    [ValidateSet("WinUI", "Avalonia")]
+    [string]$Product = "WinUI"
 )
 
 $ErrorActionPreference = "Stop"
@@ -9,10 +11,10 @@ $root = Split-Path -Parent $PSScriptRoot
 $dist = if ([string]::IsNullOrWhiteSpace($DistDir)) { Join-Path $root "dist" } else { $DistDir }
 
 function Get-ProjectVersion {
-    $csproj = Join-Path $root "Keirohi.WinUI\Keirohi.App.csproj"
-    [xml]$xml = Get-Content $csproj
+    param([string]$CsprojPath)
+    [xml]$xml = Get-Content $CsprojPath
     $version = $xml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
-    if (-not $version) { throw "Version not found in Keirohi.App.csproj" }
+    if (-not $version) { throw "Version not found in $CsprojPath" }
     return $version.Trim()
 }
 
@@ -34,17 +36,38 @@ function Find-IsccPath {
     return $null
 }
 
+$config = switch ($Product) {
+    "WinUI" {
+        @{
+            Csproj = Join-Path $root "Keirohi.WinUI\Keirohi.App.csproj"
+            PublishSubDir = "publish\win-x64"
+            PublishExe = "Keirohi.App.exe"
+            IssFile = "Keirohi.iss"
+            SetupPrefix = "Keirohi"
+        }
+    }
+    "Avalonia" {
+        @{
+            Csproj = Join-Path $root "Keirohi.Avalonia\Keirohi.Avalonia.csproj"
+            PublishSubDir = "publish-avalonia\win-x64"
+            PublishExe = "Keirohi.Avalonia.exe"
+            IssFile = "Keirohi.Avalonia.iss"
+            SetupPrefix = "Keirohi.Avalonia"
+        }
+    }
+    default { throw "Unknown product: $Product" }
+}
+
 if ([string]::IsNullOrWhiteSpace($Version)) {
-    $Version = Get-ProjectVersion
+    $Version = Get-ProjectVersion -CsprojPath $config.Csproj
 }
 
-$publishDir = Join-Path $dist "publish\win-x64"
-$publishExe = Join-Path $publishDir "Keirohi.App.exe"
+$publishDir = Join-Path $dist $config.PublishSubDir
+$publishExe = Join-Path $publishDir $config.PublishExe
 if (-not (Test-Path $publishExe)) {
-    throw "Publish output not found: $publishDir"
+    throw "Publish output not found: $publishExe"
 }
 
-# ショートカットは exe 内のアイコンを使う。公開物へ AppIcon.ico を明示して埋め込む。
 & (Join-Path $root "scripts\Stamp-ExeIcon.ps1") -ExePath $publishExe
 
 $iscc = Find-IsccPath -Override $IsccPath
@@ -52,11 +75,11 @@ if (-not $iscc) {
     throw "Inno Setup 6 (ISCC.exe) not found. Install: winget install --id JRSoftware.InnoSetup -e"
 }
 
-$issPath = Join-Path $PSScriptRoot "Keirohi.iss"
-Get-ChildItem $dist -Filter "Keirohi-*-x64-Setup.exe" -ErrorAction SilentlyContinue | Remove-Item -Force
+$issPath = Join-Path $PSScriptRoot $config.IssFile
+Get-ChildItem $dist -Filter "$($config.SetupPrefix)-*-x64-Setup.exe" -ErrorAction SilentlyContinue | Remove-Item -Force
 & $iscc "/DAppVersion=$Version" "/DPublishDir=$publishDir" "/DOutputDir=$dist" "/DRepoRoot=$root" $issPath
 if ($LASTEXITCODE -ne 0) { throw "Inno Setup build failed" }
 
-$setupPath = Join-Path $dist "Keirohi-$Version-x64-Setup.exe"
+$setupPath = Join-Path $dist "$($config.SetupPrefix)-$Version-x64-Setup.exe"
 if (-not (Test-Path $setupPath)) { throw "Setup was not generated: $setupPath" }
 Write-Host "Setup: $setupPath"

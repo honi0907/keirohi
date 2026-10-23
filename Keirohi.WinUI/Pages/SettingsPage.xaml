@@ -11,12 +11,24 @@
         <StackPanel MaxWidth="400" HorizontalAlignment="Stretch" Spacing="12">
             <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="設定" />
             <TextBox x:Name="CardLabelBox" Header="Suica カード表示（明細右上）" />
-            <CalendarDatePicker
-                x:Name="StatementDatePicker"
-                HorizontalAlignment="Stretch"
-                Header="明細下段の日付"
-                IsTodayHighlighted="True"
-                PlaceholderText="日付を選択" />
+            <TextBlock Opacity="0.85" Text="明細下段の日付" />
+            <Grid ColumnSpacing="8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <CalendarDatePicker
+                    x:Name="StatementDatePicker"
+                    Grid.Column="0"
+                    HorizontalAlignment="Stretch"
+                    IsTodayHighlighted="True"
+                    PlaceholderText="日付を選択" />
+                <Button
+                    Grid.Column="1"
+                    Click="StatementDateToday_Click"
+                    Content="今日"
+                    VerticalAlignment="Stretch" />
+            </Grid>
             <ToggleSwitch
                 x:Name="AutoFillFareToggle"
                 Header="運賃の自動入力"
@@ -25,6 +37,15 @@
             <TextBlock
                 Opacity="0.75"
                 Text="オンにすると、出発・到着の入力時に過去に覚えた運賃を金額欄へ入れます。一度入力した区間の金額は自動で記憶され、手動で直した場合も上書きして記憶します。"
+                TextWrapping="WrapWholeWords" />
+            <ToggleSwitch
+                x:Name="ShowSuicaPreviewPngAndPrintToggle"
+                Header="明細プレビューで PNG 保存と印刷を表示"
+                OffContent="オフ"
+                OnContent="オン" />
+            <TextBlock
+                Opacity="0.75"
+                Text="オフ（初期設定）のときは PDF 保存のみ表示します。位置の細かい調整が必要なときだけオンにしてください。"
                 TextWrapping="WrapWholeWords" />
             <Button Click="Save_Click" Content="保存" Style="{StaticResource AccentButtonStyle}" />
             <Border

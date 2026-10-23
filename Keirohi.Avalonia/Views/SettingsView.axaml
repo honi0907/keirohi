@@ -1,0 +1,31 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Keirohi.Avalonia.Views.SettingsView">
+  <ScrollViewer Padding="16,12,16,20">
+    <StackPanel MaxWidth="400" Spacing="12">
+      <TextBlock FontSize="20" FontWeight="SemiBold" Text="設定"/>
+      <TextBox x:Name="CardLabelBox" Watermark="Suica カード表示（明細右上）"/>
+      <TextBlock Opacity="0.85" Text="明細下段の日付"/>
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+        <CalendarDatePicker x:Name="StatementDatePicker" Grid.Column="0"
+                            HorizontalAlignment="Stretch" MinHeight="36"
+                            Watermark="日付を選択" IsTodayHighlighted="True"/>
+        <Button Grid.Column="1" Content="今日" MinHeight="36" VerticalAlignment="Stretch"
+                Click="StatementDateToday_Click"/>
+      </Grid>
+      <CheckBox x:Name="AutoFillFareToggle" Content="運賃の自動入力"/>
+      <TextBlock Opacity="0.75" Text="オンにすると、出発・到着の入力時に過去に覚えた運賃を金額欄へ入れます。一度入力した区間の金額は自動で記憶され、手動で直した場合も上書きして記憶します。" TextWrapping="Wrap"/>
+      <CheckBox x:Name="ShowSuicaPreviewPngAndPrintToggle" Content="明細プレビューで PNG 保存と印刷を表示"/>
+      <TextBlock Opacity="0.75" Text="オフ（初期設定）のときは PDF 保存のみ表示します。位置の細かい調整が必要なときだけオンにしてください。" TextWrapping="Wrap"/>
+      <Button Content="保存" Click="Save_Click" Classes="accent"/>
+      <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">
+        <StackPanel Spacing="8">
+          <TextBlock FontWeight="SemiBold" Text="オンライン更新"/>
+          <TextBlock x:Name="VersionText" Opacity="0.8" TextWrapping="Wrap"/>
+          <Button x:Name="CheckUpdateButton" Content="更新を確認" Click="CheckUpdate_Click"/>
+          <TextBlock x:Name="UpdateStatusText" Opacity="0.75" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

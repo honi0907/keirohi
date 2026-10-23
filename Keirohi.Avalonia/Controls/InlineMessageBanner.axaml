@@ -1,0 +1,12 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Keirohi.Avalonia.Controls.InlineMessageBanner"
+             HorizontalAlignment="Stretch">
+  <Border x:Name="RootBorder" Padding="10,8" CornerRadius="4" BorderThickness="1"
+          IsVisible="False" HorizontalAlignment="Stretch">
+    <Grid ColumnDefinitions="*,Auto">
+      <TextBlock x:Name="MessageText" Grid.Column="0" FontSize="12" TextWrapping="Wrap" VerticalAlignment="Center"/>
+      <Button Grid.Column="1" Content="×" Click="Dismiss_Click" Padding="4" Background="Transparent" BorderThickness="0"/>
+    </Grid>
+  </Border>
+</UserControl>

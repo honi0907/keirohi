@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Keirohi.Avalonia.Views.AboutView">
+  <StackPanel Margin="24" Spacing="12" MaxWidth="520">
+    <TextBlock Text="経路費（Keirohi）" FontSize="22" FontWeight="SemiBold"/>
+    <TextBlock Text="Avalonia クロスプラットフォーム版（プレビュー）" Opacity="0.8"/>
+    <TextBlock x:Name="VersionText"/>
+    <TextBlock TextWrapping="Wrap" Opacity="0.7"
+               Text="Windows 向けのフル機能版は Keirohi.WinUI です。パターン編集・Suica プレビュー・オンライン更新などは WinUI 版をご利用ください。"/>
+  </StackPanel>
+</UserControl>

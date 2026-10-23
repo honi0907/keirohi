@@ -32,18 +32,19 @@ if ($SkipGitHub) {
     exit 0
 }
 
+$repo = "honi0907/keirohi"
 $tag = "v$version"
-Write-Host "== GitHub Release $tag =="
+Write-Host "== GitHub Release $repo $tag =="
 $previousErrorAction = $ErrorActionPreference
 $ErrorActionPreference = "Continue"
-gh release view $tag 2>$null | Out-Null
+gh release view $tag --repo $repo 2>$null | Out-Null
 $viewCode = $LASTEXITCODE
 $ErrorActionPreference = $previousErrorAction
 if ($viewCode -eq 0) {
-    throw "Release $tag already exists. Bump Version in Keirohi.App.csproj first."
+    throw "Release $tag already exists on $repo. Bump Version in Keirohi.App.csproj first."
 }
 
-$notes = "Keirohi v$version setup. Install, then use Settings or the startup prompt to update. The app restarts after an update."
-gh release create $tag $setup --title "Keirohi v$version" --notes $notes
+$notes = "Keirohi WinUI v$version setup. Updates use GitHub Release on $repo."
+gh release create $tag $setup --repo $repo --title "Keirohi v$version" --notes $notes
 
 Write-Host "Release created: $tag"

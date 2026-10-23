@@ -18,7 +18,7 @@ public static class PrintBitmapHelper
         CryptographicBuffer.CopyToByteArray(pixels, out var pixelBytes);
 
         using var stream = new InMemoryRandomAccessStream();
-        await WritePngAsync(stream, (uint)width, (uint)height, pixelBytes);
+        await WritePngAsync(stream, (uint)width, (uint)height, pixelBytes, 96);
         stream.Seek(0);
 
         var image = new BitmapImage();
@@ -26,7 +26,7 @@ public static class PrintBitmapHelper
         return image;
     }
 
-    public static async Task<byte[]> ToPngBytesAsync(RenderTargetBitmap source)
+    public static async Task<byte[]> ToPngBytesAsync(RenderTargetBitmap source, double dpi = 96)
     {
         var pixels = await source.GetPixelsAsync();
         var width = source.PixelWidth;
@@ -34,7 +34,7 @@ public static class PrintBitmapHelper
         CryptographicBuffer.CopyToByteArray(pixels, out var pixelBytes);
 
         using var stream = new InMemoryRandomAccessStream();
-        await WritePngAsync(stream, (uint)width, (uint)height, pixelBytes);
+        await WritePngAsync(stream, (uint)width, (uint)height, pixelBytes, dpi);
         stream.Seek(0);
         var bytes = new byte[stream.Size];
         var buffer = new WinRtBuffer((uint)bytes.Length);
@@ -55,7 +55,7 @@ public static class PrintBitmapHelper
         CryptographicBuffer.CopyToByteArray(pixels, out var pixelBytes);
 
         using var stream = await file.OpenAsync(FileAccessMode.ReadWrite);
-        await WritePngAsync(stream, (uint)rendered.PixelWidth, (uint)rendered.PixelHeight, pixelBytes);
+        await WritePngAsync(stream, (uint)rendered.PixelWidth, (uint)rendered.PixelHeight, pixelBytes, 96);
         await stream.FlushAsync();
     }
 
@@ -63,7 +63,8 @@ public static class PrintBitmapHelper
         IRandomAccessStream stream,
         uint width,
         uint height,
-        byte[] pixelBytes)
+        byte[] pixelBytes,
+        double dpi)
     {
         var encoder = await BitmapEncoder.CreateAsync(BitmapEncoder.PngEncoderId, stream);
         encoder.SetPixelData(
@@ -71,8 +72,8 @@ public static class PrintBitmapHelper
             BitmapAlphaMode.Premultiplied,
             width,
             height,
-            96,
-            96,
+            dpi,
+            dpi,
             pixelBytes);
         await encoder.FlushAsync();
     }

@@ -8,4 +8,10 @@ pdf-compare/
 Keirohi.WinUI/bin/
 Keirohi.WinUI/obj/
 Keirohi.WinUI/.vs/
+Keirohi.Avalonia/bin/
+Keirohi.Avalonia/obj/
+Keirohi.Core/bin/
+Keirohi.Core/obj/
+Keirohi.Updates/bin/
+Keirohi.Updates/obj/
 *.user

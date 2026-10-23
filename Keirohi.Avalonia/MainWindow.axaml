@@ -1,0 +1,68 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Keirohi.Avalonia.Controls"
+        x:Class="Keirohi.Avalonia.MainWindow"
+        Title="交通費入力"
+        Width="1404"
+        Height="840"
+        MinWidth="1404"
+        MinHeight="640">
+  <Grid>
+    <Grid RowDefinitions="*">
+      <Grid x:Name="ContentLayout" HorizontalAlignment="Center" VerticalAlignment="Stretch" Width="1380" Margin="0,0,0,20"
+            RowDefinitions="Auto,*" ColumnDefinitions="188,672,0,520">
+        <Grid Grid.RowSpan="2" Grid.Column="0" RowDefinitions="Auto,Auto,*">
+          <ListBox x:Name="NavList" Grid.Row="0" MaxHeight="280" SelectionChanged="NavList_SelectionChanged"
+                   Background="Transparent" BorderThickness="0">
+            <ListBoxItem Tag="input">入力</ListBoxItem>
+            <ListBoxItem Tag="export">出力</ListBoxItem>
+            <ListBoxItem Tag="patterns">パターン</ListBoxItem>
+            <ListBoxItem Tag="settings">設定</ListBoxItem>
+          </ListBox>
+          <Border x:Name="PatternPaneSeparator" Grid.Row="1" Margin="12,4,12,0" BorderThickness="0,1,0,0"
+                  BorderBrush="{DynamicResource ThemeBorderLowBrush}" IsVisible="False"/>
+          <controls:RoutePatternListPane x:Name="PatternListPane" Grid.Row="2" IsVisible="False"/>
+        </Grid>
+
+        <TextBlock x:Name="EditorColumnTitle" Grid.Row="0" Grid.Column="1" Margin="12,10,12,8"
+                   FontSize="16" FontWeight="SemiBold" Text="区間を入力" IsVisible="False"/>
+
+        <Grid Grid.Row="0" Grid.Column="3" ColumnDefinitions="*,2*">
+          <TextBlock Grid.Column="0" Margin="4,10,0,8" FontSize="16" FontWeight="SemiBold" Text="明細への登録" TextWrapping="Wrap"/>
+          <TextBlock Grid.Column="1" Margin="4,10,8,8" FontSize="16" FontWeight="SemiBold" Text="登録結果" TextWrapping="Wrap"/>
+        </Grid>
+
+        <Grid Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="8,0,8,10"
+              RowDefinitions="*,Auto" ColumnDefinitions="672,520">
+          <Border Grid.Row="0" Grid.Column="0" BorderBrush="{DynamicResource ThemeBorderLowBrush}"
+                  BorderThickness="1" CornerRadius="8">
+            <Grid>
+              <ContentControl x:Name="PageHost"/>
+              <controls:RoutePatternEditorPanel x:Name="PatternEditorHost" Margin="12"
+                                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                                IsVisible="False"/>
+            </Grid>
+          </Border>
+
+          <controls:RegistrationPreviewPanel x:Name="RegistrationPreview" Grid.Row="0" Grid.Column="1"
+                                             Margin="4,0,0,0"/>
+
+          <Button x:Name="SavePatternButton" Grid.Row="1" Grid.Column="0" MinHeight="40" Margin="12,8,12,0"
+                  HorizontalAlignment="Stretch" Content="パターンを保存" Click="SavePatternButton_Click"
+                  IsVisible="False" Classes="accent"/>
+          <Grid Grid.Row="1" Grid.Column="1" Margin="4,8,0,0" ColumnDefinitions="*,2*">
+            <Button x:Name="RegisterToEntriesButton" Grid.Column="0" MinHeight="40" Margin="0,0,4,0"
+                    HorizontalAlignment="Stretch" Content="明細に登録" Click="RegisterToEntriesButton_Click"
+                    IsEnabled="False" Classes="accent"/>
+            <Button x:Name="PdfSaveButton" Grid.Column="1" MinHeight="40" Margin="4,0,0,0"
+                    HorizontalAlignment="Stretch" Content="PDFで保存…" Click="PdfSaveButton_Click"
+                    Classes="accent"/>
+          </Grid>
+        </Grid>
+      </Grid>
+
+      <TextBlock x:Name="LastSavedText" Margin="12,0,0,6" VerticalAlignment="Bottom" HorizontalAlignment="Left"
+                 FontSize="10" Opacity="0.65"/>
+    </Grid>
+  </Grid>
+</Window>

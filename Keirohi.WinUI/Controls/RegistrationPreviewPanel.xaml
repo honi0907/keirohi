@@ -9,7 +9,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Margin="4,0,8,10" VerticalAlignment="Stretch">
+    <Grid VerticalAlignment="Stretch">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
             <ColumnDefinition Width="2*" />
@@ -18,7 +18,7 @@
         <Border
             Grid.Column="0"
             Margin="0,0,4,0"
-            Padding="8,8,8,10"
+            Padding="8,8,8,8"
             VerticalAlignment="Stretch"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -45,14 +45,6 @@
                         HorizontalAlignment="Stretch"
                         Visibility="Collapsed" />
                     <controls:InlineMessageBanner x:Name="RegisterMessageBanner" />
-                    <Button
-                        x:Name="RegisterToEntriesButton"
-                        MinHeight="40"
-                        HorizontalAlignment="Stretch"
-                        Click="RegisterToEntries_Click"
-                        Content="明細に登録"
-                        IsEnabled="False"
-                        Style="{StaticResource AccentButtonStyle}" />
                 </StackPanel>
             </ScrollViewer>
         </Border>
@@ -60,7 +52,7 @@
         <Border
             Grid.Column="1"
             Margin="4,0,0,0"
-            Padding="8,8,8,10"
+            Padding="8,8,8,8"
             VerticalAlignment="Stretch"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
@@ -147,19 +139,12 @@
                     BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
                     BorderThickness="{StaticResource KeirohiCardBorderThickness}"
                     CornerRadius="4">
-                    <StackPanel Spacing="8">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                            <Button Click="EditSelected_Click" Content="編集" />
-                            <Button Click="MoveUp_Click" Content="↑" />
-                            <Button Click="MoveDown_Click" Content="↓" />
-                            <Button Click="DeleteSelected_Click" Content="削除" />
-                            <Button Click="ClearAll_Click" Content="すべて削除" />
-                        </StackPanel>
-                        <Button
-                            HorizontalAlignment="Stretch"
-                            Click="OpenPdfPreview_Click"
-                            Content="印刷プレビュー…"
-                            Style="{StaticResource AccentButtonStyle}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Button Click="EditSelected_Click" Content="編集" />
+                        <Button Click="MoveUp_Click" Content="↑" />
+                        <Button Click="MoveDown_Click" Content="↓" />
+                        <Button Click="DeleteSelected_Click" Content="削除" />
+                        <Button Click="ClearAll_Click" Content="すべて削除" />
                     </StackPanel>
                 </Border>
 

@@ -62,6 +62,11 @@ public sealed class AppStateService
     {
         LoadEntrySets();
         Settings = LoadJson<AppSettings>(settingsPath) ?? new AppSettings();
+        if (ApplyPrintLayoutDefaultsV2(Settings))
+        {
+            SaveJson(settingsPath, Settings);
+        }
+
         Patterns = LoadJson<List<RoutePattern>>(patternsPath) ?? [];
         LoadFareMemory();
         RefreshDataLastWrittenFromDisk();
@@ -186,6 +191,7 @@ public sealed class AppStateService
         }
 
         set.Name = trimmed;
+        set.NameManuallySet = true;
         SaveEntrySets();
         Changed?.Invoke(this, EventArgs.Empty);
     }
@@ -404,6 +410,14 @@ public sealed class AppStateService
                 entrySetStore.ActiveSetId = entrySetStore.Sets[0].Id;
             }
 
+            var refreshed = RepairLegacyEntrySetAutoNameFlags();
+            refreshed |= RefreshAutoEntrySetNames();
+            if (refreshed)
+            {
+                SaveEntrySets();
+                Changed?.Invoke(this, EventArgs.Empty);
+            }
+
             return;
         }
 
@@ -423,7 +437,68 @@ public sealed class AppStateService
 
     private void SaveEntrySets()
     {
+        foreach (var set in entrySetStore.Sets)
+        {
+            ApplyAutoEntrySetName(set);
+        }
+
         SaveJson(entrySetsPath, entrySetStore);
+    }
+
+    private static void ApplyAutoEntrySetName(EntrySet set)
+    {
+        if (set.NameManuallySet)
+        {
+            return;
+        }
+
+        var auto = DateFormatHelper.FormatEntrySetAutoName(set.Entries);
+        if (auto.Length > 0)
+        {
+            set.Name = auto;
+        }
+    }
+
+    private bool RepairLegacyEntrySetAutoNameFlags()
+    {
+        if (entrySetStore.AutoNameLegacyUnlockApplied)
+        {
+            return false;
+        }
+
+        entrySetStore.AutoNameLegacyUnlockApplied = true;
+        foreach (var set in entrySetStore.Sets)
+        {
+            set.NameManuallySet = false;
+        }
+
+        return true;
+    }
+
+    private bool RefreshAutoEntrySetNames()
+    {
+        var changed = false;
+        foreach (var set in entrySetStore.Sets)
+        {
+            if (set.NameManuallySet)
+            {
+                continue;
+            }
+
+            var auto = DateFormatHelper.FormatEntrySetAutoName(set.Entries);
+            if (auto.Length == 0)
+            {
+                continue;
+            }
+
+            if (!string.Equals(set.Name, auto, StringComparison.Ordinal))
+            {
+                set.Name = auto;
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     private string NextEntrySetName()
@@ -439,6 +514,25 @@ public sealed class AppStateService
         }
 
         return Guid.NewGuid().ToString("N")[..8];
+    }
+
+    private static bool ApplyPrintLayoutDefaultsV2(AppSettings settings)
+    {
+        if (settings.PrintLayoutDefaultsV2Applied)
+        {
+            return false;
+        }
+
+        settings.PrintLayoutDefaultsV2Applied = true;
+        if (settings.PrintImageScale == 1f
+            && settings.PrintOffsetXmm == 0f
+            && settings.PrintOffsetYmm == 0f)
+        {
+            settings.PrintImageScale = 0.92f;
+            settings.PrintOffsetYmm = 11f;
+        }
+
+        return true;
     }
 
     private static T? LoadJson<T>(string path)

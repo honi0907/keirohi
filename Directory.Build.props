@@ -1,0 +1,6 @@
+<Project>
+  <PropertyGroup>
+    <!-- api.nuget.org に届かないときの監査取得失敗 (NU1900)。オンライン時の NU1901 等はそのまま。 -->
+    <NoWarn>$(NoWarn);NU1900</NoWarn>
+  </PropertyGroup>
+</Project>

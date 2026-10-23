@@ -23,6 +23,7 @@ public sealed partial class SettingsPage : Page
         IsoDateHelper.SetFromIso(StatementDatePicker, s.StatementDate);
         IsoDateHelper.EnsureTodayIfEmpty(StatementDatePicker);
         AutoFillFareToggle.IsOn = s.AutoFillFareEnabled;
+        ShowSuicaPreviewPngAndPrintToggle.IsOn = s.ShowSuicaPreviewPngAndPrint;
         VersionText.Text = $"現在のバージョン: {AppVersionReader.GetCurrentVersion()}";
     }
 
@@ -40,6 +41,9 @@ public sealed partial class SettingsPage : Page
         }
     }
 
+    private void StatementDateToday_Click(object sender, RoutedEventArgs e) =>
+        StatementDatePicker.Date = DateTimeOffset.Now.Date;
+
     private void Save_Click(object sender, RoutedEventArgs e)
     {
         var current = App.State.Settings;
@@ -51,6 +55,7 @@ public sealed partial class SettingsPage : Page
                 : DateTime.Today.ToString("yyyy-MM-dd"),
             EkispertApiKey = current.EkispertApiKey,
             AutoFillFareEnabled = AutoFillFareToggle.IsOn,
+            ShowSuicaPreviewPngAndPrint = ShowSuicaPreviewPngAndPrintToggle.IsOn,
             PrintImageScale = current.PrintImageScale,
             PrintOffsetXmm = current.PrintOffsetXmm,
             PrintOffsetYmm = current.PrintOffsetYmm,
@@ -58,6 +63,7 @@ public sealed partial class SettingsPage : Page
             PrintMarginRight = current.PrintMarginRight,
             PrintMarginTop = current.PrintMarginTop,
             PrintMarginBottom = current.PrintMarginBottom,
+            PrintLayoutDefaultsV2Applied = current.PrintLayoutDefaultsV2Applied,
         });
     }
 }

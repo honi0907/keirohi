@@ -1,4 +1,5 @@
 using Keirohi_App.Helpers;
+using Keirohi_App.Services;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using WinRT.Interop;
@@ -19,7 +20,19 @@ public sealed partial class SuicaPreviewWindow : Window
         }
 
         AppWindow.Resize(new Windows.Graphics.SizeInt32(900, 820));
-        Activated += (_, _) => _ = Preview.WarmPrintCacheAsync();
+        Activated += (_, _) =>
+        {
+            ApplyPreviewActionVisibility();
+            _ = Preview.WarmPrintCacheAsync();
+        };
+    }
+
+    private void ApplyPreviewActionVisibility()
+    {
+        var showExtra = App.State.Settings.ShowSuicaPreviewPngAndPrint;
+        SavePngButton.Visibility = showExtra ? Visibility.Visible : Visibility.Collapsed;
+        PrintButton.Visibility = showExtra ? Visibility.Visible : Visibility.Collapsed;
+        PrintHintText.Visibility = showExtra ? Visibility.Visible : Visibility.Collapsed;
     }
 
     public async Task<byte[]> CapturePngAsync()
@@ -45,7 +58,7 @@ public sealed partial class SuicaPreviewWindow : Window
         var picker = new FileSavePicker();
         PickerHelper.BindToWindow(picker, this);
         picker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
-        picker.SuggestedFileName = $"モバイルSuica明細_{DateTime.Now:yyyyMMdd}";
+        picker.SuggestedFileName = SuicaExportNames.SuggestDocumentBaseName(App.State.ActiveEntrySet?.Name);
         picker.FileTypeChoices.Add("PNG", [".png"]);
 
         var file = await picker.PickSaveFileAsync();
@@ -63,6 +76,40 @@ public sealed partial class SuicaPreviewWindow : Window
         catch (Exception ex)
         {
             await DialogHelper.ShowOkAsync(Content.XamlRoot, "保存", $"PNG の保存に失敗しました。\n\n{ex.Message}");
+        }
+    }
+
+    private async void SavePdf_Click(object sender, RoutedEventArgs e)
+    {
+        var button = sender as Button;
+        if (button is not null)
+        {
+            button.IsEnabled = false;
+        }
+
+        try
+        {
+            var png = await Preview.GetPrintPngAsync();
+            var hwnd = WindowNative.GetWindowHandle(this);
+            var path = SuicaGdiPrint.TrySavePdfWithDialog(hwnd, png);
+            if (path is not null)
+            {
+                await DialogHelper.ShowOkAsync(Content.XamlRoot, "保存しました", path);
+            }
+        }
+        catch (Exception ex)
+        {
+            await DialogHelper.ShowOkAsync(
+                Content.XamlRoot,
+                "PDF の保存",
+                $"PDF の保存に失敗しました。\n\n{ex.Message}");
+        }
+        finally
+        {
+            if (button is not null)
+            {
+                button.IsEnabled = true;
+            }
         }
     }
 

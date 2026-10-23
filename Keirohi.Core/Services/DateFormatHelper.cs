@@ -22,6 +22,9 @@ public static class DateFormatHelper
         return iso;
     }
 
+    /// <summary>明細シートの入金・利用額（利用はマイナス表記）。</summary>
+    public static string FormatSuicaSheetAmount(int amount) => $"-{Math.Abs(amount)}";
+
     public static string FormatPeriodLabel(IEnumerable<TripEntry> entries)
     {
         var sorted = entries.OrderBy(e => e.Date, StringComparer.Ordinal).ToList();
@@ -33,6 +36,29 @@ public static class DateFormatHelper
         var first = DateTime.Parse(sorted[0].Date);
         var last = DateTime.Parse(sorted[^1].Date);
         return $"{Fmt(first)}~{Fmt(last)}";
+    }
+
+    /// <summary>保存セットの自動名称（例: 2026 0901~0930）。</summary>
+    public static string FormatEntrySetAutoName(IEnumerable<TripEntry> entries)
+    {
+        var sorted = entries
+            .Where(e => DateTime.TryParse(e.Date, out _))
+            .OrderBy(e => e.Date, StringComparer.Ordinal)
+            .ToList();
+        if (sorted.Count == 0)
+        {
+            return "";
+        }
+
+        var first = DateTime.Parse(sorted[0].Date);
+        var last = DateTime.Parse(sorted[^1].Date);
+        static string MmDd(DateTime d) => $"{d.Month:00}{d.Day:00}";
+        if (first.Year == last.Year)
+        {
+            return $"{first.Year} {MmDd(first)}~{MmDd(last)}";
+        }
+
+        return $"{first.Year} {MmDd(first)}~{last.Year} {MmDd(last)}";
     }
 
     /// <summary>一覧の表示順で、カレンダー上の日付が逆転している箇所があるか。</summary>

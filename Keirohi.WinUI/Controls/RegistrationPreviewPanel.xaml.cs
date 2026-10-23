@@ -17,6 +17,7 @@ public sealed partial class RegistrationPreviewPanel : UserControl
     private bool suppressSetSelectionChange;
     private Func<Task>? registerAction;
     private string? registrationNavTag;
+    private Button? registerActionButton;
     private readonly ListViewDragReorderController<TripEntryItem> entryReorder;
 
     public RegistrationPreviewPanel()
@@ -59,19 +60,13 @@ public sealed partial class RegistrationPreviewPanel : UserControl
     public void ShowRegisterMessage(string message, InfoBarSeverity severity = InfoBarSeverity.Success) =>
         RegisterMessageBanner.Show(message, severity);
 
-    private void UpdateRegisterButtonEnabled()
+    public void SetRegisterButton(Button registerButton)
     {
-        if (registrationNavTag is not ("input" or "patterns"))
-        {
-            RegisterToEntriesButton.IsEnabled = false;
-            return;
-        }
-
-        RegisterToEntriesButton.IsEnabled =
-            App.State.Entries.Count < AppStateService.MaxSuicaEntries;
+        registerActionButton = registerButton;
+        UpdateRegisterButtonEnabled();
     }
 
-    private async void RegisterToEntries_Click(object sender, RoutedEventArgs e)
+    public async Task PerformRegisterAsync()
     {
         if (registerAction is null)
         {
@@ -81,6 +76,53 @@ public sealed partial class RegistrationPreviewPanel : UserControl
         RegisterMessageBanner.Hide();
         await registerAction();
         UpdateRegisterButtonEnabled();
+    }
+
+    public async Task OpenPdfPreviewAsync()
+    {
+        if (App.State.Entries.Count == 0)
+        {
+            await ShowMessageAsync("プレビュー", "登録がありません。");
+            return;
+        }
+
+        if (App.MainWindowInstance is null)
+        {
+            return;
+        }
+
+        var capture = new SuicaPreviewWindow();
+        capture.AppWindow.Move(new Windows.Graphics.PointInt32(-24000, -24000));
+        capture.Activate();
+        try
+        {
+            var png = await capture.CapturePngAsync();
+            var hwnd = WindowNative.GetWindowHandle(App.MainWindowInstance);
+            capture.Close();
+            SuicaGdiPrint.Show(hwnd, png);
+        }
+        catch (Exception ex)
+        {
+            capture.Close();
+            await ShowMessageAsync("プレビュー", $"印刷プレビューを開けませんでした。\n\n{ex.Message}");
+        }
+    }
+
+    private void UpdateRegisterButtonEnabled()
+    {
+        if (registerActionButton is null)
+        {
+            return;
+        }
+
+        if (registrationNavTag is not ("input" or "patterns"))
+        {
+            registerActionButton.IsEnabled = false;
+            return;
+        }
+
+        registerActionButton.IsEnabled =
+            App.State.Entries.Count < AppStateService.MaxSuicaEntries;
     }
 
     private void ReloadFromState()
@@ -142,8 +184,8 @@ public sealed partial class RegistrationPreviewPanel : UserControl
         SummaryText.Text = count == 0
             ? $"{setPrefix}0 件 / 合計 ¥0"
             : exportCount < count
-                ? $"{setPrefix}{count} 件 / 合計 ¥{total:N0} / 明細 {exportCount} 件 — 期間 {period}"
-                : $"{setPrefix}{count} 件 / 合計 ¥{total:N0} — 期間 {period}";
+                ? $"{setPrefix}{count} 件 / 合計 ¥{total:N0} / 明細 {exportCount} 件\n期間 {period}"
+                : $"{setPrefix}{count} 件 / 合計 ¥{total:N0}\n期間 {period}";
 
         var dateOutOfOrder = DateFormatHelper.HasDateOrderAnomalyInDisplayOrder(App.State.Entries);
         DateOrderWarningBorder.Visibility = dateOutOfOrder ? Visibility.Visible : Visibility.Collapsed;
@@ -335,36 +377,6 @@ public sealed partial class RegistrationPreviewPanel : UserControl
         if (await dialog.ShowAsync() == ContentDialogResult.Primary)
         {
             App.State.ClearEntries();
-        }
-    }
-
-    private async void OpenPdfPreview_Click(object sender, RoutedEventArgs e)
-    {
-        if (App.State.Entries.Count == 0)
-        {
-            await ShowMessageAsync("プレビュー", "登録がありません。");
-            return;
-        }
-
-        if (App.MainWindowInstance is null)
-        {
-            return;
-        }
-
-        var capture = new SuicaPreviewWindow();
-        capture.AppWindow.Move(new Windows.Graphics.PointInt32(-24000, -24000));
-        capture.Activate();
-        try
-        {
-            var png = await capture.CapturePngAsync();
-            var hwnd = WindowNative.GetWindowHandle(App.MainWindowInstance);
-            capture.Close();
-            SuicaGdiPrint.Show(hwnd, png);
-        }
-        catch (Exception ex)
-        {
-            capture.Close();
-            await ShowMessageAsync("プレビュー", $"印刷プレビューを開けませんでした。\n\n{ex.Message}");
         }
     }
 

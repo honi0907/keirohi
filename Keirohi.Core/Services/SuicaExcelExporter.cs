@@ -143,7 +143,7 @@ public static class SuicaExcelExporter
         }
 
         var amountCell = sheet.Cell(row, 13);
-        amountCell.Value = entry.Amount;
+        amountCell.Value = -Math.Abs(entry.Amount);
         amountCell.Style.NumberFormat.Format = "0";
         amountCell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Right;
     }

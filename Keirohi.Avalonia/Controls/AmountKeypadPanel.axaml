@@ -1,0 +1,19 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Keirohi.Avalonia.Controls.AmountKeypadPanel">
+  <Grid Margin="4" ColumnDefinitions="*,*,*" RowDefinitions="Auto,Auto,Auto,Auto,Auto">
+    <Button Grid.Row="0" Grid.Column="0" Content="7" Tag="7" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="0" Grid.Column="1" Content="8" Tag="8" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="0" Grid.Column="2" Content="9" Tag="9" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="1" Grid.Column="0" Content="4" Tag="4" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="1" Grid.Column="1" Content="5" Tag="5" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="1" Grid.Column="2" Content="6" Tag="6" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="2" Grid.Column="0" Content="1" Tag="1" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="2" Grid.Column="1" Content="2" Tag="2" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="2" Grid.Column="2" Content="3" Tag="3" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="3" Grid.Column="0" Content="C" Click="Clear_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="3" Grid.Column="1" Content="0" Tag="0" Click="Digit_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="3" Grid.Column="2" Content="⌫" Click="Backspace_Click" MinHeight="40" MinWidth="52" Focusable="False"/>
+    <Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Content="閉じる" Click="Close_Click" MinHeight="36" Focusable="False"/>
+  </Grid>
+</UserControl>

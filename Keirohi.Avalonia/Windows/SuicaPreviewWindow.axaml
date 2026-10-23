@@ -1,0 +1,18 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Keirohi.Avalonia.Controls"
+        x:Class="Keirohi.Avalonia.Windows.SuicaPreviewWindow"
+        Title="Suica 明細プレビュー"
+        Width="900"
+        Height="820"
+        MinWidth="720"
+        MinHeight="640">
+  <DockPanel Margin="12">
+    <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="8" Margin="0,0,0,8">
+      <Button x:Name="SavePngButton" Content="PNG を保存…" Click="SavePng_Click"/>
+      <Button x:Name="SavePdfButton" Content="PDF を保存…" Click="SavePdf_Click" Classes="accent"/>
+      <Button x:Name="PrintButton" Content="印刷…" Click="Print_Click"/>
+    </StackPanel>
+    <controls:SuicaDocumentPreview x:Name="Preview"/>
+  </DockPanel>
+</Window>

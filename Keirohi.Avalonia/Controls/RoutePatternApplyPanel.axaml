@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Keirohi.Avalonia.Controls.RoutePatternApplyPanel"
+             HorizontalAlignment="Stretch">
+  <StackPanel Spacing="10">
+    <StackPanel Spacing="2">
+      <TextBlock FontSize="11" Opacity="0.75" Text="パターン登録用" TextWrapping="Wrap"/>
+      <TextBlock FontSize="11" Opacity="0.75" Text="日付と目的地" TextWrapping="Wrap"/>
+    </StackPanel>
+    <StackPanel Spacing="4">
+      <TextBlock FontSize="12" Text="日付"/>
+      <CalendarDatePicker x:Name="ApplyDatePicker" HorizontalAlignment="Stretch"
+                          MinHeight="36" Watermark="日付を選択" IsTodayHighlighted="True"/>
+    </StackPanel>
+    <StackPanel Spacing="4">
+      <TextBlock FontSize="12" Text="目的地"/>
+      <TextBlock FontSize="10" Opacity="0.75" Text="精算用。空欄ならパターン名" TextWrapping="Wrap"/>
+      <TextBox x:Name="ApplyDestinationBox" Watermark="例: 自宅→センター"/>
+    </StackPanel>
+  </StackPanel>
+</UserControl>

@@ -135,40 +135,91 @@
                         TextWrapping="WrapWholeWords" />
                 </Grid>
 
-                <Border
+                <Grid
                     Grid.Row="1"
                     Grid.Column="1"
+                    Grid.ColumnSpan="3"
                     Margin="8,0,8,10"
-                    VerticalAlignment="Stretch"
-                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                    BorderThickness="{StaticResource KeirohiPanelBorderThickness}"
-                    CornerRadius="8">
-                    <Grid VerticalAlignment="Stretch">
-                        <Frame
-                            x:Name="NavFrame"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Stretch" />
-                        <ScrollViewer
-                            x:Name="PatternEditorHost"
-                            HorizontalAlignment="Stretch"
-                            HorizontalScrollBarVisibility="Disabled"
-                            Padding="12,12,12,24"
-                            VerticalAlignment="Stretch"
-                            VerticalScrollBarVisibility="Auto"
-                            Visibility="Collapsed">
-                            <StackPanel HorizontalAlignment="Stretch" MaxWidth="672" Spacing="14">
-                                <controls:RoutePatternEditorPanel HorizontalAlignment="Stretch" />
-                            </StackPanel>
-                        </ScrollViewer>
-                    </Grid>
-                </Border>
+                    VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="672" />
+                        <ColumnDefinition Width="520" />
+                    </Grid.ColumnDefinitions>
 
-                <controls:RegistrationPreviewPanel
-                    x:Name="RegistrationPreview"
-                    Grid.Row="1"
-                    Grid.Column="3"
-                    VerticalAlignment="Stretch" />
+                    <Border
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        VerticalAlignment="Stretch"
+                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="{StaticResource KeirohiPanelBorderThickness}"
+                        CornerRadius="8">
+                        <Grid VerticalAlignment="Stretch">
+                            <Frame
+                                x:Name="NavFrame"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Stretch" />
+                            <controls:RoutePatternEditorPanel
+                                x:Name="PatternEditorHost"
+                                Margin="12"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Visibility="Collapsed" />
+                        </Grid>
+                    </Border>
+
+                    <controls:RegistrationPreviewPanel
+                        x:Name="RegistrationPreview"
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Margin="4,0,0,0"
+                        VerticalAlignment="Stretch" />
+
+                    <Button
+                        x:Name="SavePatternButton"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        MinHeight="40"
+                        Margin="12,8,12,0"
+                        HorizontalAlignment="Stretch"
+                        Click="SavePatternButton_Click"
+                        Content="パターンを保存"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Visibility="Collapsed" />
+
+                    <Grid
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Margin="4,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1*" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Button
+                            x:Name="RegisterToEntriesButton"
+                            Grid.Column="0"
+                            MinHeight="40"
+                            Margin="0,0,4,0"
+                            HorizontalAlignment="Stretch"
+                            Click="RegisterToEntriesButton_Click"
+                            Content="明細に登録"
+                            IsEnabled="False"
+                            Style="{StaticResource AccentButtonStyle}" />
+                        <Button
+                            x:Name="PdfSaveButton"
+                            Grid.Column="1"
+                            MinHeight="40"
+                            Margin="4,0,0,0"
+                            HorizontalAlignment="Stretch"
+                            Click="PdfSaveButton_Click"
+                            Content="PDFで保存…"
+                            Style="{StaticResource AccentButtonStyle}" />
+                    </Grid>
+                </Grid>
             </Grid>
 
             <TextBlock

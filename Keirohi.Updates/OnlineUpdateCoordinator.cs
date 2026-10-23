@@ -9,9 +9,10 @@ public sealed class OnlineUpdateCoordinator
         IProgress<OnlineUpdateProgress>? progress,
         Action requestExit,
         bool promptOnlyWhenAvailable,
+        AppReleaseProfile? releaseProfile = null,
         CancellationToken cancellationToken = default)
     {
-        var profile = AppReleaseProfile.Default;
+        var profile = releaseProfile ?? AppReleaseProfile.Default;
         var current = AppVersionReader.GetCurrentVersion();
         try
         {
@@ -40,7 +41,7 @@ public sealed class OnlineUpdateCoordinator
             if (!PackagedAppDetector.CanApplyOnlineUpdate())
             {
                 return OnlineUpdateRunResult.Failed(
-                    "開発ビルドでは自己更新できません。インストールした Keirohi から起動してください。");
+                    $"開発ビルドでは自己更新できません。インストールした {profile.DisplayName} から起動してください。");
             }
 
             var installerPath = await service.DownloadInstallerAsync(check, progress, cancellationToken);

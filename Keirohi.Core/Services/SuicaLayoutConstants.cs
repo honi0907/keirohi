@@ -35,6 +35,12 @@ public static class SuicaLayoutConstants
 
     public static double MonthDayLeftInsetDip => PtToDip(TableFontPt * MonthDayLeftInsetChars);
 
+    /// <summary>月列のみ、日列よりさらに右へ（9pt 半文字分）。</summary>
+    public const double MonthColumnExtraLeftInsetChars = 0.5;
+
+    public static double MonthColumnLeftInsetDip =>
+        PtToDip(TableFontPt * (MonthDayLeftInsetChars + MonthColumnExtraLeftInsetChars));
+
     /// <summary>種別・利用駅列を左へずらす幅（9pt 全角約1文字分）。</summary>
     public const double TripColumnLeftShiftChars = 1;
 
@@ -44,6 +50,11 @@ public static class SuicaLayoutConstants
     public const double CardLabelLeftShiftChars = 11;
 
     public static double CardLabelLeftShiftDip => PtToDip(TableFontPt * CardLabelLeftShiftChars);
+
+    /// <summary>フッター「(1/1)」を右へずらす幅（9pt 全角2文字分）。</summary>
+    public const double PageNumberLeftInsetChars = 2;
+
+    public static double PageNumberLeftInsetDip => PtToDip(TableFontPt * PageNumberLeftInsetChars);
 
     public static readonly double[] ColumnWidths =
     [
@@ -65,6 +76,11 @@ public static class SuicaLayoutConstants
     public const double PrintableWidthPt = 595.32 - PageMarginPt * 2;
 
     public static double PtToDip(double pt) => pt * 96.0 / 72.0;
+
+    /// <summary>印刷用ラスタ倍率（96dpi 論理 × 本値）。PDF でも文字が滲みにくいよう 3 以上。</summary>
+    public const double PrintRasterScale = 3.0;
+
+    public static double PrintDpi => 96.0 * PrintRasterScale;
 
     public static double SheetWidthDip => PtToDip(PrintableWidthPt);
 

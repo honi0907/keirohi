@@ -17,16 +17,19 @@
                 <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
             <TextBlock
+                x:Name="PrintHintText"
                 VerticalAlignment="Center"
                 Opacity="0.85"
                 Text="印刷…の「余白の設定…」で、上下左右の余白を調整できます。"
                 TextWrapping="WrapWholeWords" />
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-                <Button Click="SavePng_Click" Content="PNG保存…" />
+                <Button x:Name="SavePngButton" Click="SavePng_Click" Content="PNG保存…" />
                 <Button
-                    Click="Print_Click"
-                    Content="印刷…"
+                    x:Name="SavePdfButton"
+                    Click="SavePdf_Click"
+                    Content="PDF保存…"
                     Style="{StaticResource AccentButtonStyle}" />
+                <Button x:Name="PrintButton" Click="Print_Click" Content="印刷…" />
             </StackPanel>
         </Grid>
 

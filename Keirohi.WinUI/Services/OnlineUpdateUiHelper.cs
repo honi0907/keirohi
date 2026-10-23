@@ -53,7 +53,8 @@ public static class OnlineUpdateUiHelper
                 message => ConfirmOnUiAsync(dispatcher, xamlRoot, message),
                 progress,
                 () => RunOnUi(dispatcher, () => Application.Current.Exit()),
-                promptOnlyWhenAvailable).ConfigureAwait(false);
+                promptOnlyWhenAvailable,
+                AppReleaseProfile.WinUi).ConfigureAwait(false);
 
             SetStatusSafe(result.Message);
         }

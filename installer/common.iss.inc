@@ -22,6 +22,9 @@
 #ifndef OutputDir
   #error Define OutputDir via ISCC /DOutputDir=
 #endif
+#ifndef OutputBaseFilenamePrefix
+  #define OutputBaseFilenamePrefix "Keirohi"
+#endif
 
 [Setup]
 AppId={#AppId}
@@ -33,7 +36,7 @@ DefaultDirName={autopf}\{#AppFolderName}
 DefaultGroupName={#AppDisplayName}
 DisableProgramGroupPage=yes
 OutputDir={#OutputDir}
-OutputBaseFilename=Keirohi-{#AppVersion}-x64-Setup
+OutputBaseFilename={#OutputBaseFilenamePrefix}-{#AppVersion}-x64-Setup
 SetupIconFile={#IconFile}
 UninstallDisplayIcon={app}\{#AppExe}
 Compression=lzma2

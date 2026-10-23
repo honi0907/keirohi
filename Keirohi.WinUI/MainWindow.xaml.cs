@@ -58,6 +58,7 @@ public sealed partial class MainWindow : Window
         UpdateLastSavedLabel();
         UpdatePatternPane("input");
         NavFrame.Navigate(typeof(InputPage));
+        RegistrationPreview.SetRegisterButton(RegisterToEntriesButton);
         ConfigureSharedRegistration("input");
         DispatcherQueue.TryEnqueue(() =>
         {
@@ -117,6 +118,15 @@ public sealed partial class MainWindow : Window
         }
     }
 
+    private async void SavePatternButton_Click(object sender, RoutedEventArgs e) =>
+        await PatternEditorHost.SavePatternsAsync();
+
+    private async void RegisterToEntriesButton_Click(object sender, RoutedEventArgs e) =>
+        await RegistrationPreview.PerformRegisterAsync();
+
+    private async void PdfSaveButton_Click(object sender, RoutedEventArgs e) =>
+        await RegistrationPreview.OpenPdfPreviewAsync();
+
     private void TitleBar_BackRequested(TitleBar sender, object args)
     {
         NavFrame.GoBack();
@@ -158,6 +168,7 @@ public sealed partial class MainWindow : Window
 
         NavFrame.Visibility = show ? Visibility.Collapsed : Visibility.Visible;
         PatternEditorHost.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
+        SavePatternButton.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
 
         var showEditorColumnTitle = tag is "input" or "patterns" or "export";
         EditorColumnTitle.Visibility = showEditorColumnTitle ? Visibility.Visible : Visibility.Collapsed;

@@ -1,0 +1,18 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:controls="clr-namespace:Keirohi.Avalonia.Controls"
+             x:Class="Keirohi.Avalonia.Controls.RoutePatternEditorPanel"
+             HorizontalAlignment="Stretch"
+             VerticalAlignment="Stretch">
+  <ScrollViewer MaxWidth="672" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+    <StackPanel Spacing="10">
+      <controls:InlineMessageBanner x:Name="SaveMessageBanner"/>
+      <TextBox x:Name="PatternNameBox" Watermark="例: 自宅→センター" TextChanged="PatternNameBox_TextChanged"/>
+      <TextBlock Text="区間（上から順に登録）"/>
+      <TextBlock Opacity="0.75" FontSize="12" Text="各区間の枠内で経路と運賃を編集します。運賃が 0 または空のときは自動推定します。" TextWrapping="Wrap"/>
+      <StackPanel x:Name="LegsPanel" Spacing="10"/>
+      <Button Content="区間を追加" Click="AddLeg_Click" HorizontalAlignment="Stretch"/>
+      <Button Content="逆パターンにする" Click="CreateReverse_Click" HorizontalAlignment="Stretch"/>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>
