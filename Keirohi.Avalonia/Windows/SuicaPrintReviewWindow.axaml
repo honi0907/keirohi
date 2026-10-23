@@ -1,0 +1,33 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Keirohi.Avalonia.Windows.SuicaPrintReviewWindow"
+        Title="印刷位置の確認"
+        Width="860"
+        Height="920"
+        WindowStartupLocation="CenterOwner">
+  <Grid RowDefinitions="*,Auto,Auto">
+    <ScrollViewer Grid.Row="0" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+      <Image x:Name="PreviewImage" Stretch="Uniform"/>
+    </ScrollViewer>
+    <StackPanel Grid.Row="1" Margin="12,8" Spacing="8">
+      <TextBlock x:Name="ScaleText" FontWeight="SemiBold"/>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="画像を縮小" Click="Shrink_Click"/>
+        <Button Content="画像を拡大" Click="Enlarge_Click"/>
+        <Button Content="倍率を戻す" Click="ResetScale_Click"/>
+      </StackPanel>
+      <TextBlock x:Name="OffsetText"/>
+      <StackPanel Orientation="Horizontal" Spacing="8">
+        <Button Content="左へ" Click="MoveLeft_Click"/>
+        <Button Content="右へ" Click="MoveRight_Click"/>
+        <Button Content="上へ" Click="MoveUp_Click"/>
+        <Button Content="下へ" Click="MoveDown_Click"/>
+        <Button Content="位置を戻す" Click="ResetOffset_Click"/>
+      </StackPanel>
+    </StackPanel>
+    <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="12" Spacing="8">
+      <Button Content="PDFで保存…" Classes="accent" Click="SavePdf_Click"/>
+      <Button Content="閉じる" Click="Close_Click"/>
+    </StackPanel>
+  </Grid>
+</Window>

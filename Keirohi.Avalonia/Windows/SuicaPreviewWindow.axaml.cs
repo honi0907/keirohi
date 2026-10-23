@@ -66,7 +66,7 @@ public partial class SuicaPreviewWindow : Window
         try
         {
             var png = await Preview.GetPrintPngAsync();
-            var path = SuicaGdiPrint.TrySavePdfWithDialog(png);
+            var path = await SuicaPrintService.TrySavePdfAsync(png, this);
             if (path is not null)
             {
                 await DialogService.ShowOkAsync("保存しました", path);
@@ -96,7 +96,7 @@ public partial class SuicaPreviewWindow : Window
         try
         {
             var png = await Preview.GetPrintPngAsync();
-            SuicaGdiPrint.Show(png);
+            await SuicaPrintService.ShowPrintConfirmationAsync(png, this);
         }
         catch (Exception ex)
         {

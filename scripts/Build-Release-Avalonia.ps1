@@ -13,7 +13,7 @@ $publishDir = Join-Path $root "dist\publish-avalonia\win-x64"
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 
 Write-Host "== Publish Avalonia v$version =="
-dotnet publish $csproj -c Release -r win-x64 --self-contained true `
+dotnet publish $csproj -c Release -f net8.0-windows -r win-x64 --self-contained true `
     -p:PublishTrimmed=false `
     -o $publishDir
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }

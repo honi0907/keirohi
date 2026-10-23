@@ -14,12 +14,16 @@ public static class TransitSearchLauncher
             return DialogService.ShowOkAsync("Yahoo!乗換案内", "出発と到着を入力してください。");
         }
 
+#if WINDOWS
         var label = $"{departure.Trim()} → {arrival.Trim()}";
         Dispatcher.UIThread.Post(() =>
         {
             var form = new TransitSearchForm(uri, label);
             form.Show();
         });
+#else
+        BrowserLauncher.OpenUri(uri);
+#endif
 
         return Task.CompletedTask;
     }
