@@ -4,6 +4,7 @@ using Keirohi_App.Models;
 using Keirohi_App.Updates;
 using Keirohi.Avalonia.Helpers;
 using Keirohi.Avalonia.Services;
+using Keirohi.Avalonia.Windows;
 
 namespace Keirohi.Avalonia.Views;
 
@@ -47,6 +48,17 @@ public partial class SettingsView : UserControl
 
     private void StatementDateToday_Click(object? sender, RoutedEventArgs e) =>
         StatementDatePicker.SelectedDate = DateTime.Today;
+
+    private async void FareHistory_Click(object? sender, RoutedEventArgs e)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
+        if (owner is null)
+        {
+            return;
+        }
+
+        await new FareMemoryWindow().ShowDialog(owner);
+    }
 
     private void ThemeCombo_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {

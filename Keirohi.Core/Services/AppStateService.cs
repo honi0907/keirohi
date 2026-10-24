@@ -84,6 +84,50 @@ public sealed class AppStateService
         SaveJson(fareMemoryPath, fareMemoryRows);
     }
 
+    public IReadOnlyList<FareMemoryRow> GetFareMemory() =>
+        fareMemoryRows
+            .Select(row => new FareMemoryRow
+            {
+                Departure = row.Departure,
+                Arrival = row.Arrival,
+                Amount = row.Amount,
+            })
+            .ToList();
+
+    public void ReplaceFareMemory(IReadOnlyList<FareMemoryRow> rows)
+    {
+        var next = new List<FareMemoryRow>();
+        foreach (var row in rows)
+        {
+            var departure = row.Departure.Trim();
+            var arrival = row.Arrival.Trim();
+            if (string.IsNullOrWhiteSpace(departure) || string.IsNullOrWhiteSpace(arrival) || row.Amount <= 0)
+            {
+                continue;
+            }
+
+            var existing = next.FindIndex(item =>
+                string.Equals(item.Departure, departure, StringComparison.Ordinal)
+                && string.Equals(item.Arrival, arrival, StringComparison.Ordinal));
+            if (existing >= 0)
+            {
+                next[existing].Amount = row.Amount;
+            }
+            else
+            {
+                next.Add(new FareMemoryRow
+                {
+                    Departure = departure,
+                    Arrival = arrival,
+                    Amount = row.Amount,
+                });
+            }
+        }
+
+        fareMemoryRows = next;
+        SaveJson(fareMemoryPath, fareMemoryRows);
+    }
+
     private bool UpsertFareMemoryRow(string departure, string arrival, int amount)
     {
         if (string.IsNullOrWhiteSpace(departure) || string.IsNullOrWhiteSpace(arrival) || amount <= 0)

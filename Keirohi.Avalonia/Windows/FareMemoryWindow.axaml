@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Keirohi.Avalonia.Windows.FareMemoryWindow"
+        Title="運賃の履歴"
+        Width="640"
+        Height="520"
+        MinWidth="520"
+        MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <Grid DockPanel.Dock="Bottom" Margin="0,12,0,0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+      <TextBlock x:Name="StatusText" VerticalAlignment="Center" Opacity="0.75" TextWrapping="Wrap"/>
+      <Button Grid.Column="1" Content="行を追加" MinHeight="36" Click="Add_Click"/>
+      <Button Grid.Column="2" Content="保存" MinHeight="36" Classes="accent" Click="Save_Click"/>
+    </Grid>
+    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8" TextWrapping="Wrap"
+               Text="出発・到着・金額を直せます。行の削除は保存したときに反映されます。"/>
+    <Grid DockPanel.Dock="Top" Margin="0,0,0,4" ColumnDefinitions="2*,2*,120,72" ColumnSpacing="8">
+      <TextBlock Opacity="0.7" Text="出発"/>
+      <TextBlock Grid.Column="1" Opacity="0.7" Text="到着"/>
+      <TextBlock Grid.Column="2" Opacity="0.7" Text="金額（円）"/>
+    </Grid>
+    <ScrollViewer>
+      <ItemsControl x:Name="RowList">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Grid Margin="0,0,0,8" ColumnDefinitions="2*,2*,120,72" ColumnSpacing="8">
+              <TextBox Text="{Binding Departure}" Watermark="出発" MinHeight="36"/>
+              <TextBox Grid.Column="1" Text="{Binding Arrival}" Watermark="到着" MinHeight="36"/>
+              <TextBox Grid.Column="2" Text="{Binding AmountText}" Watermark="金額" MinHeight="36"/>
+              <Button Grid.Column="3" Content="削除" MinHeight="36" Click="Delete_Click"/>
+            </Grid>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

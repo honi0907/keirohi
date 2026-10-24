@@ -22,6 +22,7 @@
       </ComboBox>
       <CheckBox x:Name="AutoFillFareToggle" Content="運賃の自動入力"/>
       <TextBlock Opacity="0.75" Text="オンにすると、出発・到着の入力時に過去に覚えた運賃を金額欄へ入れます。一度入力した区間の金額は自動で記憶され、手動で直した場合も上書きして記憶します。" TextWrapping="Wrap"/>
+      <Button Content="運賃の履歴…" HorizontalAlignment="Left" MinHeight="36" Click="FareHistory_Click"/>
       <CheckBox x:Name="ShowSuicaPreviewPngAndPrintToggle" Content="明細プレビューで PNG 保存と印刷を表示"/>
       <TextBlock Opacity="0.75" Text="オフ（初期設定）のときは PDF 保存のみ表示します。位置の細かい調整が必要なときだけオンにしてください。" TextWrapping="Wrap"/>
       <Button Content="保存" Click="Save_Click" Classes="accent"/>
