@@ -125,11 +125,11 @@ public partial class SuicaPrintReviewWindow : Window
         try
         {
             SuicaPdfWriter.WritePngToPdf(path, png, CurrentLayout());
-            await DialogService.ShowOkAsync("保存しました", path);
+            await DialogService.ShowOkAsync("保存しました", path, this);
         }
         catch (Exception ex)
         {
-            await DialogService.ShowOkAsync("PDF の保存", $"PDF の保存に失敗しました。\n\n{ex.Message}");
+            await DialogService.ShowOkAsync("PDF の保存", $"PDF の保存に失敗しました。\n\n{ex.Message}", this);
         }
     }
 

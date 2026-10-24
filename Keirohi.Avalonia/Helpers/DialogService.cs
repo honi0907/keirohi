@@ -9,19 +9,26 @@ public static class DialogService
 {
     public static Window? Owner => AppHost.MainWindowInstance;
 
-    public static Task ShowOkAsync(string title, string message) =>
-        ShowAsync(title, new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap }, [("OK", "ok")]);
+    /// <summary>モーダル子ウィンドウ上から呼ぶときは、その <see cref="Window"/> を渡す（Mac で前面ウィンドウと重なるとクリック不能になる）。</summary>
+    public static Task ShowOkAsync(string title, string message, Window? owner = null) =>
+        ShowAsync(
+            title,
+            new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap },
+            [("OK", "ok")],
+            owner);
 
     public static async Task<bool> ShowConfirmAsync(
         string title,
         string message,
         string primaryText = "OK",
-        string closeText = "キャンセル")
+        string closeText = "キャンセル",
+        Window? owner = null)
     {
         var id = await ShowAsync(
             title,
             new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap },
-            [(primaryText, "primary"), (closeText, "close")]);
+            [(primaryText, "primary"), (closeText, "close")],
+            owner);
         return id == "primary";
     }
 
@@ -30,13 +37,19 @@ public static class DialogService
         string message,
         string primaryText,
         string secondaryText,
-        string closeText) =>
+        string closeText,
+        Window? owner = null) =>
         ShowAsync(
             title,
             new TextBlock { Text = message, TextWrapping = TextWrapping.Wrap },
-            [(primaryText, "primary"), (secondaryText, "secondary"), (closeText, "close")]);
+            [(primaryText, "primary"), (secondaryText, "secondary"), (closeText, "close")],
+            owner);
 
-    public static async Task<string?> ShowPromptAsync(string title, string initialText, string placeholder = "")
+    public static async Task<string?> ShowPromptAsync(
+        string title,
+        string initialText,
+        string placeholder = "",
+        Window? owner = null)
     {
         var box = new TextBox
         {
@@ -46,16 +59,17 @@ public static class DialogService
         };
         box.CaretIndex = initialText.Length;
         var panel = new StackPanel { Spacing = 8, Children = { box } };
-        var id = await ShowAsync(title, panel, [("保存", "save"), ("キャンセル", "cancel")]);
+        var id = await ShowAsync(title, panel, [("保存", "save"), ("キャンセル", "cancel")], owner);
         return id == "save" ? box.Text : null;
     }
 
     private static async Task<string?> ShowAsync(
         string title,
         Control content,
-        IReadOnlyList<(string Label, string Id)> buttons)
+        IReadOnlyList<(string Label, string Id)> buttons,
+        Window? owner = null)
     {
-        var owner = Owner;
+        owner ??= Owner;
         if (owner is null)
         {
             return null;
@@ -69,6 +83,8 @@ public static class DialogService
             SizeToContent = SizeToContent.Height,
             WindowStartupLocation = WindowStartupLocation.CenterOwner,
             CanResize = false,
+            ShowInTaskbar = false,
+            ShowActivated = true,
         };
 
         var buttonRow = new StackPanel

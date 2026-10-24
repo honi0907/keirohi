@@ -47,11 +47,11 @@ public partial class SuicaPreviewWindow : Window
         {
             var png = await Preview.GetPrintPngAsync();
             await File.WriteAllBytesAsync(path, png);
-            await DialogService.ShowOkAsync("保存しました", path);
+            await DialogService.ShowOkAsync("保存しました", path, this);
         }
         catch (Exception ex)
         {
-            await DialogService.ShowOkAsync("保存", $"PNG の保存に失敗しました。\n\n{ex.Message}");
+            await DialogService.ShowOkAsync("保存", $"PNG の保存に失敗しました。\n\n{ex.Message}", this);
         }
     }
 
@@ -69,12 +69,12 @@ public partial class SuicaPreviewWindow : Window
             var path = await SuicaPrintService.TrySavePdfAsync(png, this);
             if (path is not null)
             {
-                await DialogService.ShowOkAsync("保存しました", path);
+                await DialogService.ShowOkAsync("保存しました", path, this);
             }
         }
         catch (Exception ex)
         {
-            await DialogService.ShowOkAsync("PDF の保存", $"PDF の保存に失敗しました。\n\n{ex.Message}");
+            await DialogService.ShowOkAsync("PDF の保存", $"PDF の保存に失敗しました。\n\n{ex.Message}", this);
         }
         finally
         {
@@ -100,7 +100,7 @@ public partial class SuicaPreviewWindow : Window
         }
         catch (Exception ex)
         {
-            await DialogService.ShowOkAsync("印刷", $"印刷画面を開けませんでした。\n\n{ex.Message}");
+            await DialogService.ShowOkAsync("印刷", $"印刷画面を開けませんでした。\n\n{ex.Message}", this);
         }
         finally
         {
