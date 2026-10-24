@@ -14,7 +14,8 @@
                 Click="StatementDateToday_Click"/>
       </Grid>
       <TextBlock Opacity="0.85" Text="外観"/>
-      <ComboBox x:Name="ThemeCombo" HorizontalAlignment="Stretch" MinHeight="36">
+      <ComboBox x:Name="ThemeCombo" HorizontalAlignment="Stretch" MinHeight="36"
+                SelectionChanged="ThemeCombo_SelectionChanged">
         <ComboBoxItem Content="システムに合わせる" Tag="System"/>
         <ComboBoxItem Content="ライト" Tag="Light"/>
         <ComboBoxItem Content="ダーク" Tag="Dark"/>

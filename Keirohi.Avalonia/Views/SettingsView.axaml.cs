@@ -10,6 +10,7 @@ namespace Keirohi.Avalonia.Views;
 public partial class SettingsView : UserControl
 {
     private static readonly string[] ThemePreferences = ["System", "Light", "Dark"];
+    private bool suppressThemeChange;
 
     public SettingsView()
     {
@@ -22,7 +23,9 @@ public partial class SettingsView : UserControl
         CardLabelBox.Text = s.SuicaCardLabel;
         IsoDateHelper.SetFromIso(StatementDatePicker, s.StatementDate);
         IsoDateHelper.EnsureTodayIfEmpty(StatementDatePicker);
+        suppressThemeChange = true;
         SelectThemePreference(s.ThemePreference);
+        suppressThemeChange = false;
         AutoFillFareToggle.IsChecked = s.AutoFillFareEnabled;
         ShowSuicaPreviewPngAndPrintToggle.IsChecked = s.ShowSuicaPreviewPngAndPrint;
         VersionText.Text = $"現在のバージョン: {AppVersionReader.GetCurrentVersion()}";
@@ -45,7 +48,26 @@ public partial class SettingsView : UserControl
     private void StatementDateToday_Click(object? sender, RoutedEventArgs e) =>
         StatementDatePicker.SelectedDate = DateTime.Today;
 
+    private void ThemeCombo_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        if (suppressThemeChange || ThemeCombo.SelectedIndex < 0)
+        {
+            return;
+        }
+
+        PersistSettings();
+        AppThemeHelper.Apply(AppHost.State.Settings);
+        UpdateStatusText.Text = $"外観を{ThemeLabel(AppHost.State.Settings.ThemePreference)}にしました。";
+    }
+
     private void Save_Click(object? sender, RoutedEventArgs e)
+    {
+        PersistSettings();
+        AppThemeHelper.Apply(AppHost.State.Settings);
+        UpdateStatusText.Text = "設定を保存しました。";
+    }
+
+    private void PersistSettings()
     {
         var current = AppHost.State.Settings;
         AppHost.State.UpdateSettings(new AppSettings
@@ -67,9 +89,15 @@ public partial class SettingsView : UserControl
             PrintMarginBottom = current.PrintMarginBottom,
             PrintLayoutDefaultsV2Applied = current.PrintLayoutDefaultsV2Applied,
         });
-        AppThemeHelper.Apply(AppHost.State.Settings);
-        UpdateStatusText.Text = "設定を保存しました。";
     }
+
+    private static string ThemeLabel(string preference) =>
+        preference switch
+        {
+            "Light" => "ライト",
+            "Dark" => "ダーク",
+            _ => "システムに合わせる",
+        };
 
     private void SelectThemePreference(string preference)
     {

@@ -30,7 +30,8 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        var desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        if (desktop is not null)
         {
             var main = new MainWindow();
             AppHost.MainWindowInstance = main;
