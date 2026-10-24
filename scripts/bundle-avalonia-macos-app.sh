@@ -78,6 +78,18 @@ cat > "$app_path/Contents/Info.plist" <<PLIST
   <string>12.0</string>
   <key>NSHighResolutionCapable</key>
   <true/>
+PLIST
+
+icon_src="$root/Keirohi.Avalonia/Assets/AppIcon.icns"
+if [[ -f "$icon_src" ]]; then
+  cp "$icon_src" "$resources_dir/AppIcon.icns"
+  cat >> "$app_path/Contents/Info.plist" <<'PLIST'
+  <key>CFBundleIconFile</key>
+  <string>AppIcon</string>
+PLIST
+fi
+
+cat >> "$app_path/Contents/Info.plist" <<'PLIST'
 </dict>
 </plist>
 PLIST

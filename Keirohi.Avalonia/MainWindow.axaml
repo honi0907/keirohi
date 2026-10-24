@@ -3,6 +3,7 @@
         xmlns:controls="clr-namespace:Keirohi.Avalonia.Controls"
         x:Class="Keirohi.Avalonia.MainWindow"
         Title="通勤経路費"
+        Icon="/Assets/AppIcon.png"
         Width="1404"
         Height="840"
         MinWidth="1404"
