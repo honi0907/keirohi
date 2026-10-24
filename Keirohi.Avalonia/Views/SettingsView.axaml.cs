@@ -9,6 +9,8 @@ namespace Keirohi.Avalonia.Views;
 
 public partial class SettingsView : UserControl
 {
+    private static readonly string[] ThemePreferences = ["System", "Light", "Dark"];
+
     public SettingsView()
     {
         InitializeComponent();
@@ -71,26 +73,15 @@ public partial class SettingsView : UserControl
 
     private void SelectThemePreference(string preference)
     {
-        foreach (var item in ThemeCombo.Items.OfType<ComboBoxItem>())
-        {
-            if (string.Equals(item.Tag as string, preference, StringComparison.Ordinal))
-            {
-                ThemeCombo.SelectedItem = item;
-                return;
-            }
-        }
-
-        ThemeCombo.SelectedIndex = 0;
+        var index = Array.IndexOf(ThemePreferences, preference);
+        ThemeCombo.SelectedIndex = index >= 0 ? index : 0;
     }
 
     private string ReadThemePreference()
     {
-        if (ThemeCombo.SelectedItem is ComboBoxItem { Tag: string tag }
-            && tag is "System" or "Light" or "Dark")
-        {
-            return tag;
-        }
-
-        return "System";
+        var index = ThemeCombo.SelectedIndex;
+        return index >= 0 && index < ThemePreferences.Length
+            ? ThemePreferences[index]
+            : ThemePreferences[0];
     }
 }

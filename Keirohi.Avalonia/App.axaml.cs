@@ -30,14 +30,14 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
-        AppThemeHelper.Apply(AppHost.State.Settings);
-
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var main = new MainWindow();
             AppHost.MainWindowInstance = main;
             desktop.MainWindow = main;
         }
+
+        AppThemeHelper.Apply(AppHost.State.Settings);
 
         base.OnFrameworkInitializationCompleted();
     }
