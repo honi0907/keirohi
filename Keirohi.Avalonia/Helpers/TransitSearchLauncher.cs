@@ -22,7 +22,20 @@ public static class TransitSearchLauncher
             form.Show();
         });
 #else
-        BrowserLauncher.OpenUri(uri);
+        var label = $"{departure.Trim()} → {arrival.Trim()}";
+        var owner = AppHost.MainWindowInstance;
+        Dispatcher.UIThread.Post(() =>
+        {
+            var window = new TransitSearchWindow(uri, label);
+            if (owner is not null)
+            {
+                window.Show(owner);
+            }
+            else
+            {
+                window.Show();
+            }
+        });
 #endif
 
         return Task.CompletedTask;

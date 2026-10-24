@@ -16,6 +16,7 @@ Write-Host "== Publish Avalonia v$version ($Runtime, net8.0) =="
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 dotnet publish $csproj -c Release -f net8.0 -r $Runtime --self-contained true `
     -p:PublishTrimmed=false `
+    -p:TargetFrameworks=net8.0 `
     -o $publishDir
 if ($LASTEXITCODE -ne 0) { throw "dotnet publish failed" }
 
