@@ -59,7 +59,7 @@ cat > "$app_path/Contents/Info.plist" <<PLIST
   <key>CFBundleDevelopmentRegion</key>
   <string>ja</string>
   <key>CFBundleDisplayName</key>
-  <string>交通費入力</string>
+  <string>通勤経路費</string>
   <key>CFBundleExecutable</key>
   <string>Keirohi</string>
   <key>CFBundleIdentifier</key>
@@ -67,7 +67,7 @@ cat > "$app_path/Contents/Info.plist" <<PLIST
   <key>CFBundleInfoDictionaryVersion</key>
   <string>6.0</string>
   <key>CFBundleName</key>
-  <string>Keirohi</string>
+  <string>通勤経路費</string>
   <key>CFBundlePackageType</key>
   <string>APPL</string>
   <key>CFBundleShortVersionString</key>

@@ -33,8 +33,9 @@ public static class OnlineUpdateUiHelper
                 }
             });
 
+            var confirmPrimary = UpdatePlatform.IsMacOs ? "DMG を開く" : "更新して再起動";
             var result = await Coordinator.RunAsync(
-                message => DialogService.ShowConfirmAsync("新しいバージョン", message, "更新して再起動", "あとで"),
+                message => DialogService.ShowConfirmAsync("新しいバージョン", message, confirmPrimary, "あとで"),
                 progress,
                 () => RunOnUi(() => Environment.Exit(0)),
                 promptOnlyWhenAvailable,

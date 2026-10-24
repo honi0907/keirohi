@@ -31,8 +31,11 @@ public sealed class OnlineUpdateCoordinator
                     $"最新です（現在 {check.CurrentVersion} / 最新 {check.LatestVersion}）");
             }
 
-            var message =
-                $"新しいバージョンがあります。\n{check.CurrentVersion} → {check.LatestVersion}\n更新するとアプリは自動で再起動します。";
+            var message = UpdatePlatform.IsMacOs
+                ? $"新しいバージョンがあります。\n{check.CurrentVersion} → {check.LatestVersion}\n"
+                  + "DMG を開きます。Keirohi.app を「アプリケーション」にコピーしてから、このアプリを終了して起動し直してください。"
+                : $"新しいバージョンがあります。\n{check.CurrentVersion} → {check.LatestVersion}\n"
+                  + "更新するとアプリは自動で再起動します。";
             if (!await confirmUpdateAsync(message))
             {
                 return OnlineUpdateRunResult.Cancelled("更新をあとで行います。");
@@ -45,10 +48,17 @@ public sealed class OnlineUpdateCoordinator
             }
 
             var installerPath = await service.DownloadInstallerAsync(check, progress, cancellationToken);
-            progress?.Report(new OnlineUpdateProgress("更新を適用して再起動します...", 100));
+            progress?.Report(new OnlineUpdateProgress(
+                UpdatePlatform.IsMacOs ? "DMG を開いています..." : "更新を適用して再起動します...",
+                100));
             if (!AppUpdateService.TryLaunchInstaller(installerPath, out var launchError))
             {
                 return OnlineUpdateRunResult.Failed(launchError ?? "インストーラーの起動に失敗しました。");
+            }
+
+            if (UpdatePlatform.IsMacOs)
+            {
+                return OnlineUpdateRunResult.Applied("DMG を開きました。コピーが終わったらアプリを再起動してください。");
             }
 
             requestExit();

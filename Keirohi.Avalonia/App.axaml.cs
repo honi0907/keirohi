@@ -9,6 +9,11 @@ namespace Keirohi.Avalonia;
 
 public partial class App : global::Avalonia.Application
 {
+    public App()
+    {
+        Name = "通勤経路費";
+    }
+
     public override void RegisterServices()
     {
         base.RegisterServices();

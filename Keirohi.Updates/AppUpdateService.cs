@@ -41,7 +41,7 @@ public sealed class AppUpdateService
         var asset = PickInstallerAsset(release.Assets, profile.AssetNamePattern);
         if (asset is null || string.IsNullOrWhiteSpace(asset.BrowserDownloadUrl))
         {
-            return AppUpdateCheckResult.Fail("Release に Setup .exe がありません。");
+            return AppUpdateCheckResult.Fail(UpdatePlatform.InstallerNotFoundMessage);
         }
 
         if (VersionComparer.Compare(latestVersion, current) <= 0)
@@ -54,9 +54,12 @@ public sealed class AppUpdateService
             latestVersion,
             release.TagName ?? latestVersion,
             release.HtmlUrl,
-            asset.Name ?? "Keirohi-Setup.exe",
+            asset.Name ?? DefaultAssetFileName(),
             asset.BrowserDownloadUrl);
     }
+
+    private static string DefaultAssetFileName() =>
+        UpdatePlatform.IsMacOs ? "Keirohi-osx-x64.dmg" : "Keirohi-Setup.exe";
 
     public async Task<string> DownloadInstallerAsync(
         AppUpdateCheckResult check,
@@ -68,7 +71,7 @@ public sealed class AppUpdateService
             throw new InvalidOperationException(check.Error ?? "更新情報がありません。");
         }
 
-        var assetName = Path.GetFileName(check.AssetName ?? "Keirohi-Setup.exe");
+        var assetName = Path.GetFileName(check.AssetName ?? DefaultAssetFileName());
         var targetPath = Path.Combine(
             Path.GetTempPath(),
             $"keirohi-update-{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}-{assetName}");
@@ -88,6 +91,17 @@ public sealed class AppUpdateService
 
         try
         {
+            if (UpdatePlatform.IsMacOs)
+            {
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = "open",
+                    Arguments = $"\"{installerPath}\"",
+                    UseShellExecute = false,
+                });
+                return true;
+            }
+
             Process.Start(new ProcessStartInfo
             {
                 FileName = installerPath,
@@ -153,6 +167,45 @@ public sealed class AppUpdateService
             return null;
         }
 
+        return UpdatePlatform.IsMacOs
+            ? PickMacDmgAsset(assets, assetPattern)
+            : PickWindowsExeAsset(assets, assetPattern);
+    }
+
+    private static GitHubReleaseAssetDto? PickMacDmgAsset(
+        List<GitHubReleaseAssetDto> assets,
+        string assetPattern)
+    {
+        var dmgAssets = assets
+            .Where(a => !string.IsNullOrWhiteSpace(a.Name))
+            .Where(a => a.Name!.EndsWith(".dmg", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+        if (dmgAssets.Count == 0)
+        {
+            return null;
+        }
+
+        var pattern = assetPattern.Trim();
+        var filtered = string.IsNullOrWhiteSpace(pattern)
+            ? dmgAssets
+            : dmgAssets.Where(a => a.Name!.Contains(pattern, StringComparison.OrdinalIgnoreCase)).ToList();
+        if (filtered.Count == 0)
+        {
+            filtered = dmgAssets;
+        }
+
+        var runtime = UpdatePlatform.MacOsDmgRuntimeSuffix;
+        return filtered.FirstOrDefault(a =>
+                   a.Name!.Contains(runtime, StringComparison.OrdinalIgnoreCase))
+               ?? filtered.FirstOrDefault(a =>
+                   a.Name!.Contains("osx-", StringComparison.OrdinalIgnoreCase))
+               ?? filtered[0];
+    }
+
+    private static GitHubReleaseAssetDto? PickWindowsExeAsset(
+        List<GitHubReleaseAssetDto> assets,
+        string assetPattern)
+    {
         var exeAssets = assets
             .Where(a => !string.IsNullOrWhiteSpace(a.Name))
             .Where(a => a.Name!.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))

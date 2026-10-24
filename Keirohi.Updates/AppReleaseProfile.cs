@@ -19,8 +19,8 @@ public sealed record AppReleaseProfile(
     public static AppReleaseProfile Avalonia { get; } = new(
         AvaloniaRepo,
         "v",
-        "Keirohi.Avalonia-",
-        "交通費入力 (Avalonia)");
+        "Keirohi",
+        "通勤経路費");
 
     /// <summary>WinUI 向け（後方互換）。</summary>
     public static AppReleaseProfile Default => WinUi;
