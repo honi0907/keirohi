@@ -13,6 +13,12 @@
         <Button Grid.Column="1" Content="今日" MinHeight="36" VerticalAlignment="Stretch"
                 Click="StatementDateToday_Click"/>
       </Grid>
+      <TextBlock Opacity="0.85" Text="外観"/>
+      <ComboBox x:Name="ThemeCombo" HorizontalAlignment="Stretch" MinHeight="36">
+        <ComboBoxItem Content="システムに合わせる" Tag="System"/>
+        <ComboBoxItem Content="ライト" Tag="Light"/>
+        <ComboBoxItem Content="ダーク" Tag="Dark"/>
+      </ComboBox>
       <CheckBox x:Name="AutoFillFareToggle" Content="運賃の自動入力"/>
       <TextBlock Opacity="0.75" Text="オンにすると、出発・到着の入力時に過去に覚えた運賃を金額欄へ入れます。一度入力した区間の金額は自動で記憶され、手動で直した場合も上書きして記憶します。" TextWrapping="Wrap"/>
       <CheckBox x:Name="ShowSuicaPreviewPngAndPrintToggle" Content="明細プレビューで PNG 保存と印刷を表示"/>

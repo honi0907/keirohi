@@ -20,6 +20,7 @@ public partial class SettingsView : UserControl
         CardLabelBox.Text = s.SuicaCardLabel;
         IsoDateHelper.SetFromIso(StatementDatePicker, s.StatementDate);
         IsoDateHelper.EnsureTodayIfEmpty(StatementDatePicker);
+        SelectThemePreference(s.ThemePreference);
         AutoFillFareToggle.IsChecked = s.AutoFillFareEnabled;
         ShowSuicaPreviewPngAndPrintToggle.IsChecked = s.ShowSuicaPreviewPngAndPrint;
         VersionText.Text = $"現在のバージョン: {AppVersionReader.GetCurrentVersion()}";
@@ -52,6 +53,7 @@ public partial class SettingsView : UserControl
                 ? iso
                 : DateTime.Today.ToString("yyyy-MM-dd"),
             EkispertApiKey = current.EkispertApiKey,
+            ThemePreference = ReadThemePreference(),
             AutoFillFareEnabled = AutoFillFareToggle.IsChecked == true,
             ShowSuicaPreviewPngAndPrint = ShowSuicaPreviewPngAndPrintToggle.IsChecked == true,
             PrintImageScale = current.PrintImageScale,
@@ -63,6 +65,32 @@ public partial class SettingsView : UserControl
             PrintMarginBottom = current.PrintMarginBottom,
             PrintLayoutDefaultsV2Applied = current.PrintLayoutDefaultsV2Applied,
         });
+        AppThemeHelper.Apply(AppHost.State.Settings);
         UpdateStatusText.Text = "設定を保存しました。";
+    }
+
+    private void SelectThemePreference(string preference)
+    {
+        foreach (var item in ThemeCombo.Items.OfType<ComboBoxItem>())
+        {
+            if (string.Equals(item.Tag as string, preference, StringComparison.Ordinal))
+            {
+                ThemeCombo.SelectedItem = item;
+                return;
+            }
+        }
+
+        ThemeCombo.SelectedIndex = 0;
+    }
+
+    private string ReadThemePreference()
+    {
+        if (ThemeCombo.SelectedItem is ComboBoxItem { Tag: string tag }
+            && tag is "System" or "Light" or "Dark")
+        {
+            return tag;
+        }
+
+        return "System";
     }
 }

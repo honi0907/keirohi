@@ -54,6 +54,7 @@ public sealed partial class SettingsPage : Page
                 ? iso
                 : DateTime.Today.ToString("yyyy-MM-dd"),
             EkispertApiKey = current.EkispertApiKey,
+            ThemePreference = current.ThemePreference,
             AutoFillFareEnabled = AutoFillFareToggle.IsOn,
             ShowSuicaPreviewPngAndPrint = ShowSuicaPreviewPngAndPrintToggle.IsOn,
             PrintImageScale = current.PrintImageScale,

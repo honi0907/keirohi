@@ -6,6 +6,9 @@ public sealed class AppSettings
     public string StatementDate { get; set; } = DateTime.Today.ToString("yyyy-MM-dd");
     public string EkispertApiKey { get; set; } = "";
 
+    /// <summary>アプリ外観（Avalonia）: System / Light / Dark。</summary>
+    public string ThemePreference { get; set; } = "System";
+
     /// <summary>出発・到着入力時に記憶した運賃などを自動入力する。</summary>
     public bool AutoFillFareEnabled { get; set; } = true;
 

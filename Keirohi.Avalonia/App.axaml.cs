@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
+using Keirohi.Avalonia.Helpers;
 #if !WINDOWS
 using AvaloniaWebView;
 #endif
@@ -29,6 +30,8 @@ public partial class App : global::Avalonia.Application
 
     public override void OnFrameworkInitializationCompleted()
     {
+        AppThemeHelper.Apply(AppHost.State.Settings);
+
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
             var main = new MainWindow();
