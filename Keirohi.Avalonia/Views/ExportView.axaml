@@ -5,9 +5,9 @@
     <StackPanel MaxWidth="400" Spacing="12">
       <TextBlock x:Name="PeriodText" TextWrapping="Wrap"/>
       <Button Content="楽楽精算 CSV を保存" Click="ExportCsv_Click" Classes="accent"/>
-      <Button Content="モバイル Suica Excel を保存" Click="ExportExcel_Click"/>
-      <Button Content="CSV + Excel を一括保存（同じフォルダ）" Click="ExportBoth_Click"/>
-      <Button Content="楽楽精算 CSV を取り込み（追加）" Click="ImportCsv_Click"/>
+      <Button Content="モバイル Suica Excel を保存" Click="ExportExcel_Click" IsEnabled="False" Opacity="0.45"/>
+      <Button Content="CSV + Excel を一括保存（同じフォルダ）" Click="ExportBoth_Click" IsEnabled="False" Opacity="0.45"/>
+      <Button Content="楽楽精算 CSV を取り込み（追加）" Click="ImportCsv_Click" IsEnabled="False" Opacity="0.45"/>
       <TextBlock Opacity="0.75" Text="右側のコンボで保存セットを切り替えられます。出力・プレビューは選択中のセットが対象です。" TextWrapping="Wrap"/>
       <TextBlock x:Name="StatusText" Opacity="0.8" TextWrapping="Wrap"/>
     </StackPanel>
