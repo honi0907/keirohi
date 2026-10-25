@@ -6,6 +6,8 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
+& (Join-Path $root "scripts\Build-AppIcon-Windows.ps1")
+
 $csproj = Join-Path $root "Keirohi.Avalonia\Keirohi.Avalonia.csproj"
 [xml]$xml = Get-Content $csproj
 $version = ($xml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1).Trim()
@@ -42,7 +44,7 @@ if ($viewCode -eq 0) {
     throw "Release $tag already exists on $repo. Bump Version in Keirohi.Avalonia.csproj first."
 }
 
-$notes = "Keirohi Avalonia v$version setup. Install to ``Program Files\Keirohi.Avalonia``. Updates use GitHub Release on $repo."
+$notes = "通勤経路費 v$version（Windows）。Install to ``Program Files\Keirohi.Avalonia``. Updates use GitHub Release on $repo."
 gh release create $tag $setup --repo $repo --title "Keirohi Avalonia v$version" --notes $notes
 
 Write-Host "Release created: $repo $tag"

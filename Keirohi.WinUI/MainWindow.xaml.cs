@@ -47,6 +47,7 @@ public sealed partial class MainWindow : Window
         }
 
         initialized = true;
+        AppThemeHelper.Apply(App.State.Settings);
         if (AppWindow.Presenter is OverlappedPresenter presenter)
         {
             presenter.PreferredMinimumWidth = MinWindowWidth;

@@ -7,7 +7,7 @@ param(
 $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 if ([string]::IsNullOrWhiteSpace($IconPath)) {
-    $IconPath = Join-Path $root "Keirohi.WinUI\Assets\AppIcon.ico"
+    $IconPath = Join-Path $root "Keirohi.Avalonia\Assets\AppIcon.ico"
 }
 
 if (-not (Test-Path $ExePath)) { throw "Exe not found: $ExePath" }

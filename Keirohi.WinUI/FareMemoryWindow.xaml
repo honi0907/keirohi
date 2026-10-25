@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="Keirohi_App.FareMemoryWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Keirohi_App"
+    Title="運賃の履歴">
+    <Grid Margin="16" RowSpacing="8">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            Grid.Row="0"
+            Text="出発・到着・金額を直せます。行の削除は保存したときに反映されます。"
+            TextWrapping="WrapWholeWords" />
+        <Grid Grid.Row="1" ColumnSpacing="8" Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="2*" />
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="72" />
+            </Grid.ColumnDefinitions>
+            <TextBlock Opacity="0.7" Text="出発" />
+            <TextBlock Grid.Column="1" Opacity="0.7" Text="到着" />
+            <TextBlock Grid.Column="2" Opacity="0.7" Text="金額（円）" />
+        </Grid>
+        <ScrollViewer Grid.Row="2">
+            <ItemsControl x:Name="RowList">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="local:FareMemoryEditItem">
+                        <Grid Margin="0,0,0,8" ColumnSpacing="8">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="120" />
+                                <ColumnDefinition Width="72" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox PlaceholderText="出発" Text="{x:Bind Departure, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Column="1"
+                                PlaceholderText="到着"
+                                Text="{x:Bind Arrival, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox
+                                Grid.Column="2"
+                                PlaceholderText="金額"
+                                Text="{x:Bind AmountText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <Button Grid.Column="3" Click="Delete_Click" Content="削除" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+        <Grid Grid.Row="3" Margin="0,12,0,0" ColumnSpacing="8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <TextBlock
+                x:Name="StatusText"
+                VerticalAlignment="Center"
+                Opacity="0.75"
+                TextWrapping="WrapWholeWords" />
+            <Button Grid.Column="1" Click="Add_Click" Content="行を追加" />
+            <Button
+                Grid.Column="2"
+                Click="Save_Click"
+                Content="保存"
+                Style="{StaticResource AccentButtonStyle}" />
+        </Grid>
+    </Grid>
+</Window>

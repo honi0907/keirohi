@@ -12,9 +12,21 @@
             <TextBlock x:Name="PeriodText" TextWrapping="WrapWholeWords" />
 
             <Button Click="ExportCsv_Click" Content="楽楽精算 CSV を保存" Style="{StaticResource AccentButtonStyle}" />
-            <Button Click="ExportExcel_Click" Content="モバイル Suica Excel を保存" />
-            <Button Click="ExportBoth_Click" Content="CSV + Excel を一括保存（同じフォルダ）" />
-            <Button Click="ImportCsv_Click" Content="楽楽精算 CSV を取り込み（追加）" />
+            <Button
+                Click="ExportExcel_Click"
+                Content="モバイル Suica Excel を保存"
+                IsEnabled="False"
+                Opacity="0.45" />
+            <Button
+                Click="ExportBoth_Click"
+                Content="CSV + Excel を一括保存（同じフォルダ）"
+                IsEnabled="False"
+                Opacity="0.45" />
+            <Button
+                Click="ImportCsv_Click"
+                Content="楽楽精算 CSV を取り込み（追加）"
+                IsEnabled="False"
+                Opacity="0.45" />
 
             <TextBlock
                 Opacity="0.75"

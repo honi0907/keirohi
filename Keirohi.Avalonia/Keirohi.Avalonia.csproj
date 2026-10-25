@@ -4,10 +4,10 @@
     <TargetFrameworks>net8.0;net8.0-windows</TargetFrameworks>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Version>1.1.4</Version>
-    <AssemblyVersion>1.1.4.0</AssemblyVersion>
-    <FileVersion>1.1.4.0</FileVersion>
-    <InformationalVersion>1.1.4</InformationalVersion>
+    <Version>1.1.5</Version>
+    <AssemblyVersion>1.1.5.0</AssemblyVersion>
+    <FileVersion>1.1.5.0</FileVersion>
+    <InformationalVersion>1.1.5</InformationalVersion>
     <AssemblyName>Keirohi.Avalonia</AssemblyName>
     <Product>通勤経路費</Product>
     <AssemblyTitle>通勤経路費</AssemblyTitle>
@@ -16,6 +16,7 @@
   <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
     <UseWindowsForms>true</UseWindowsForms>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\AppIcon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +32,10 @@
   <ItemGroup>
     <AvaloniaResource Include="Assets\AppIcon.png" />
     <AvaloniaResource Include="Assets\AppIcon-1024.png" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
+    <Content Include="Assets\AppIcon.ico" />
   </ItemGroup>
 
   <ItemGroup>

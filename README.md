@@ -1,82 +1,96 @@
-# 交通費計算
+# 通勤経路費（Keirohi）
 
-WinUI 版と Avalonia 版のデスクトップアプリ（Web / npm は不要）。データはどちらも `%LocalAppData%\Keirohi\` を共有します。
+Win / Mac 共通の **Avalonia** デスクトップアプリ（Web / npm は不要）。
 
-## 起動
+- **製品名:** 通勤経路費
+- **アイコン:** 「通経」（`Keirohi.Avalonia/Assets/`）
+- **WinUI 版:** [凍結](./Keirohi.WinUI/README.md)（新規開発・Release 対象外）
+- **Win / Mac の Release 揃え:** [docs/RELEASE-SYNC.md](./docs/RELEASE-SYNC.md)
 
-| 版 | BAT |
-|----|-----|
-| WinUI | `交通費WinUI版を開く.bat` |
-| Avalonia | `交通費Avalonia版を開く.bat` |
+## 起動（Windows 開発）
+
+ダブルクリック: **`通勤経路費を開く.bat`**
+
+```powershell
+dotnet run --project Keirohi.Avalonia/Keirohi.Avalonia.csproj -c Debug -f net8.0-windows
+```
+
+要件: .NET 8 SDK、Windows 10/11（Windows 版）。
+
+データ（Windows）: `%LocalAppData%\Keirohi\`（旧 WinUI 版と同じフォルダを共有できます）。
 
 ## 開発
 
 ```powershell
-dotnet build Keirohi.sln
+dotnet build Keirohi.Avalonia/Keirohi.Avalonia.csproj -f net8.0-windows
 ```
 
-要件: .NET 8 SDK、Windows 10/11。
+共有ライブラリ: `Keirohi.Core` / `Keirohi.Updates`。WinUI プロジェクトはビルド不要です。
 
-## GitHub Release（リポジトリ別）
+### Windows アイコン（.ico）
 
-| 版 | GitHub リポジトリ | スクリプト | Setup ファイル名 |
-|----|-------------------|------------|------------------|
-| WinUI | [honi0907/keirohi](https://github.com/honi0907/keirohi) | `.\scripts\Build-Release.ps1` | `Keirohi-<version>-x64-Setup.exe` |
-| Avalonia | [honi0907/keirohi-avalonia](https://github.com/honi0907/keirohi-avalonia) | `.\scripts\Build-Release-Avalonia.ps1` | `Keirohi.Avalonia-<version>-x64-Setup.exe` |
+インストーラ・exe 用の `AppIcon.ico` は `AppIcon-1024.png`（通経）から生成します。
 
-どちらも **Inno Setup 6** でインストーラ（`.exe`）を生成します。`-SkipGitHub` でローカルビルドのみ、`gh` ログイン済みなら `v<Version>` の Release を作成します。
+```powershell
+.\scripts\Build-AppIcon-Windows.ps1
+```
 
-バージョンは各 csproj の `Version`（WinUI: `Keirohi.App.csproj`、Avalonia: `Keirohi.Avalonia.csproj`）。インストール後は起動時または設定の「更新を確認」から、**それぞれのリポジトリ**の Release を参照します。
+Release ビルド（`Build-Release-Avalonia.ps1`）では自動実行されます。
 
-Avalonia 用 GitHub リポジトリは空で作成してから初回 Release してください。
+## GitHub Release
+
+| プラットフォーム | リポジトリ | スクリプト | 成果物 |
+|------------------|------------|------------|--------|
+| Windows | [honi0907/keirohi-avalonia](https://github.com/honi0907/keirohi-avalonia) | `.\scripts\Build-Release-Avalonia.ps1` | `Keirohi.Avalonia-<version>-x64-Setup.exe` |
+| Mac | 同上 | `scripts/upload-avalonia-macos-release.sh` 等 | `.dmg` |
+
+**Inno Setup 6** で Windows インストーラを生成。`-SkipGitHub` でローカルのみ、`gh` ログイン済みなら `v<Version>` の Release を作成。
+
+バージョン: `Keirohi.Avalonia/Keirohi.Avalonia.csproj` の `Version`。更新確認は設定から **keirohi-avalonia** の Release を参照します。
+
+旧 WinUI 用 [honi0907/keirohi](https://github.com/honi0907/keirohi) の Release は今後使いません。
 
 ### Mac 向け（Avalonia）
 
-- プロジェクトは **`net8.0`（Mac/Linux）** と **`net8.0-windows`（Win + GDI 印刷）** のマルチターゲットです。Mac では **`Keirohi.WinUI` はビルド不要**（Avalonia + Core + Updates のみ）。
-- Mac では乗換案内を **アプリ内 WebView ポップアップ**（Yahoo!乗換案内）で開き、PDF は **PDFsharp** と Avalonia の印刷位置確認ウィンドウを使います（Windows は WebView2 ポップアップ + GDI 印刷確認も利用可能）。
-- データ保存先は Windows の `%LocalAppData%\Keirohi\` とは別です（Mac ではユーザー Application Support 等。`fare-memory.json` も別ファイル）。
+- **`net8.0`**（Mac）と **`net8.0-windows`**（Windows + GDI 印刷）のマルチターゲット。
+- Mac: 乗換案内は **アプリ内 WebView**、PDF は PDFsharp + 印刷位置確認。
+- Windows: WebView2 ポップアップ + GDI 印刷確認も利用可能。
+- Mac のデータは Windows の `%LocalAppData%\Keirohi\` とは別パスです。
 
-**要件:** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)（`dotnet --version` で 8.x を確認）。
+**要件:** [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)。
 
-**注意（マルチ TFM）:** `Keirohi.Avalonia` は `net8.0-windows` も含むため、Mac で `dotnet build` / `dotnet publish` すると restore 時に **NETSDK1100** になることがあります。シェルスクリプトは `-p:TargetFrameworks=net8.0` を付けています。手動のときも同様に付けてください。
+**注意（マルチ TFM）:** Mac で build/publish するときは `-f net8.0 -p:TargetFrameworks=net8.0` を付けてください（シェルスクリプトは既に付与済み）。
 
 ```bash
-cd keirohi
-export PATH="$HOME/.dotnet:$PATH"   # ユーザーインストールした場合
-
-# Debug ビルド・起動
 dotnet build Keirohi.Avalonia/Keirohi.Avalonia.csproj -c Debug -f net8.0 -p:TargetFrameworks=net8.0
 dotnet run --project Keirohi.Avalonia/Keirohi.Avalonia.csproj -c Debug -f net8.0 -p:TargetFrameworks=net8.0
 ```
 
-**Release publish → .app → .dmg（ローカル配布用、署名・notarization なし）**
-
-アーキテクチャは自動判定（Intel → `osx-x64`、Apple Silicon → `osx-arm64`）。PowerShell がある場合は `.\scripts\Build-Publish-Avalonia-osx.ps1` でも publish できます（`-Runtime osx-x64` 等）。
+**Release publish → .app → .dmg**
 
 ```bash
 chmod +x scripts/build-publish-avalonia-macos.sh \
   scripts/bundle-avalonia-macos-app.sh \
-  scripts/create-avalonia-macos-dmg.sh
+  scripts/create-avalonia-macos-dmg.sh \
+  scripts/build-app-icon-macos.sh
 
-./scripts/build-publish-avalonia-macos.sh    # dist/publish-avalonia/<runtime>/
-./scripts/bundle-avalonia-macos-app.sh     # dist/Keirohi.app
-./scripts/create-avalonia-macos-dmg.sh     # dist/Keirohi-<version>-<runtime>.dmg
-
-open dist/Keirohi.app
+./scripts/build-publish-avalonia-macos.sh
+./scripts/bundle-avalonia-macos-app.sh
+./scripts/create-avalonia-macos-dmg.sh
 ```
 
-**DMG からインストールしたあと「壊れているため開けません」と出る場合**（GitHub から落とした未公証ビルドでよくある表示で、ファイル自体が壊れたわけではありません）:
+**Gatekeeper（未公証ビルド）:** `xattr -cr /Applications/Keirohi.app` または右クリック →「開く」。
 
-1. **Applications** に `Keirohi.app` を入れたあと、ターミナルで  
-   `xattr -cr /Applications/Keirohi.app`  
-   を実行してから再度起動する  
-2. または Finder で `Keirohi.app` を **右クリック →「開く」→「開く」**
-
-開発用の `dist/Keirohi.app` でも同様に `xattr -cr` できます。公証（notarization）は後から追加可能です。
-
-**GitHub Release に Mac 用 DMG を載せる**（[keirohi-avalonia](https://github.com/honi0907/keirohi-avalonia)）:
+**GitHub Release に Mac DMG:**
 
 ```bash
-gh auth login     # 初回のみ（https://cli.github.com/）
+gh auth login
 ./scripts/upload-avalonia-macos-release.sh
 ```
+
+Mac アイコン: `scripts/build-app-icon-macos.sh`（`AppIcon.icns` / `AppIcon.png`）。
+
+## ドキュメント
+
+- [Release 同期（Win Setup / Mac DMG）](./docs/RELEASE-SYNC.md)
+- [Avalonia / WinUI 機能差分メモ（WinUI 凍結後）](./docs/avalonia-mac-changes-for-winui.md)

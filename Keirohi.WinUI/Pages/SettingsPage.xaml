@@ -29,6 +29,15 @@
                     Content="今日"
                     VerticalAlignment="Stretch" />
             </Grid>
+            <TextBlock Opacity="0.85" Text="外観" />
+            <ComboBox
+                x:Name="ThemeCombo"
+                HorizontalAlignment="Stretch"
+                SelectionChanged="ThemeCombo_SelectionChanged">
+                <ComboBoxItem Content="システムに合わせる" Tag="System" />
+                <ComboBoxItem Content="ライト" Tag="Light" />
+                <ComboBoxItem Content="ダーク" Tag="Dark" />
+            </ComboBox>
             <ToggleSwitch
                 x:Name="AutoFillFareToggle"
                 Header="運賃の自動入力"
@@ -38,6 +47,10 @@
                 Opacity="0.75"
                 Text="オンにすると、出発・到着の入力時に過去に覚えた運賃を金額欄へ入れます。一度入力した区間の金額は自動で記憶され、手動で直した場合も上書きして記憶します。"
                 TextWrapping="WrapWholeWords" />
+            <Button
+                Click="FareHistory_Click"
+                Content="運賃の履歴…"
+                HorizontalAlignment="Left" />
             <ToggleSwitch
                 x:Name="ShowSuicaPreviewPngAndPrintToggle"
                 Header="明細プレビューで PNG 保存と印刷を表示"
@@ -48,6 +61,10 @@
                 Text="オフ（初期設定）のときは PDF 保存のみ表示します。位置の細かい調整が必要なときだけオンにしてください。"
                 TextWrapping="WrapWholeWords" />
             <Button Click="Save_Click" Content="保存" Style="{StaticResource AccentButtonStyle}" />
+            <TextBlock
+                x:Name="SettingsStatusText"
+                Opacity="0.75"
+                TextWrapping="WrapWholeWords" />
             <Border
                 Padding="12"
                 Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
