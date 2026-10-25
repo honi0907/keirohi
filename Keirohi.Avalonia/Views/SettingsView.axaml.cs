@@ -100,7 +100,19 @@ public partial class SettingsView : UserControl
             PrintMarginTop = current.PrintMarginTop,
             PrintMarginBottom = current.PrintMarginBottom,
             PrintLayoutDefaultsV2Applied = current.PrintLayoutDefaultsV2Applied,
+            ReleaseNotesAcknowledgedVersion = current.ReleaseNotesAcknowledgedVersion,
         });
+    }
+
+    private async void ReleaseNotesHistory_Click(object? sender, RoutedEventArgs e)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
+        if (owner is null)
+        {
+            return;
+        }
+
+        await new ReleaseNotesHistoryWindow().ShowDialog(owner);
     }
 
     private static string ThemeLabel(string preference) =>

@@ -1,0 +1,38 @@
+---
+description: Release 時に docs/RELEASE-SYNC.md と Version を揃える
+globs: Keirohi.Avalonia/Keirohi.Avalonia.csproj,docs/RELEASE-SYNC.md,scripts/Build-Release-Avalonia.ps1,scripts/upload-avalonia-macos-release.sh
+alwaysApply: false
+---
+
+# Release 同期（RELEASE-SYNC）
+
+Win / Mac は Avalonia 一本。Release 表は [docs/RELEASE-SYNC.md](../../docs/RELEASE-SYNC.md)。
+
+## エージェントが Version を上げたとき
+
+`Keirohi.Avalonia.csproj` の `<Version>` を変更したら、**同じバージョンの項目を** `Keirohi.Updates/Assets/release-notes.json` に追記する（起動時ポップアップ・設定の更新履歴）。
+
+`Keirohi.Avalonia.csproj` の `<Version>` を変更したら、同じターンで次を実行する:
+
+```powershell
+.\scripts\Update-ReleaseSync.ps1 -EnsureRow -RefreshTodos
+```
+
+必要なら `-Note "短いメモ"` を付ける。
+
+## Release 後
+
+- Windows Setup: `Build-Release-Avalonia.ps1` が成功すると **Win Setup 列**を更新する（`-SkipGitHub` 時は「要確認」）。
+- Mac DMG: `upload-avalonia-macos-release.sh` 成功後に **Mac DMG 列**を更新する（Mac では `pwsh` があれば同スクリプト、なければ `update-release-sync.sh` を実行）。
+
+手で表を書き換えない。スクリプト後に `docs/RELEASE-SYNC.md` を開いて表と「次にやること」だけ確認する。
+
+## main push
+
+Release 作業で commit したら push 後:
+
+```powershell
+.\scripts\Update-ReleaseSync.ps1 -Set MainPush -Value 済 -RefreshTodos
+```
+
+Mac: `./scripts/update-release-sync.sh main`（要 `pwsh`）。

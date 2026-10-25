@@ -94,6 +94,9 @@ public sealed class AppStateService
             })
             .ToList();
 
+    public IReadOnlyList<RouteSectionHistoryEntry> GetRouteSectionHistory() =>
+        RouteSectionHistoryCatalog.Build(EntrySets, GetFareMemory());
+
     public void ReplaceFareMemory(IReadOnlyList<FareMemoryRow> rows)
     {
         var next = new List<FareMemoryRow>();
@@ -331,6 +334,42 @@ public sealed class AppStateService
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>目的地だけ一括更新（PDF 取込後のまとめ入力。運賃記憶は更新しない）。</summary>
+    public int UpdateEntryDestinations(IReadOnlyDictionary<string, string> idToDestination)
+    {
+        if (idToDestination.Count == 0)
+        {
+            return 0;
+        }
+
+        var updated = 0;
+        foreach (var entry in Entries)
+        {
+            if (!idToDestination.TryGetValue(entry.Id, out var raw))
+            {
+                continue;
+            }
+
+            var dest = raw.Trim();
+            if (dest.Length == 0 || string.Equals(entry.Destination, dest, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            entry.Destination = dest;
+            updated++;
+        }
+
+        if (updated == 0)
+        {
+            return 0;
+        }
+
+        SaveEntrySets();
+        Changed?.Invoke(this, EventArgs.Empty);
+        return updated;
+    }
+
     private void LoadFareMemory()
     {
         fareMemoryRows = LoadJson<List<FareMemoryRow>>(fareMemoryPath) ?? [];
@@ -372,6 +411,80 @@ public sealed class AppStateService
         (Entries[index], Entries[target]) = (Entries[target], Entries[index]);
         SaveEntrySets();
         Changed?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// 一覧上の行を日付順の位置へ移動する。同じ日付の行があればその先頭、なければ日付が入る位置。
+    /// </summary>
+    /// <returns>移動した場合 true（既に正しい位置なら false）</returns>
+    public bool MoveEntryToCorrectDatePosition(string id)
+    {
+        var index = Entries.FindIndex(e => e.Id == id);
+        if (index < 0)
+        {
+            return false;
+        }
+
+        var entry = Entries[index];
+        if (string.IsNullOrWhiteSpace(entry.Date))
+        {
+            return false;
+        }
+
+        var insertAt = FindDateSortInsertIndex(entry.Date, excludeId: id);
+        if (insertAt == index)
+        {
+            return false;
+        }
+
+        Entries.RemoveAt(index);
+        if (insertAt > index)
+        {
+            insertAt--;
+        }
+
+        Entries.Insert(insertAt, entry);
+        SaveEntrySets();
+        Changed?.Invoke(this, EventArgs.Empty);
+        return true;
+    }
+
+    private int FindDateSortInsertIndex(string isoDate, string? excludeId = null)
+    {
+        var sameDateIndex = -1;
+        for (var i = 0; i < Entries.Count; i++)
+        {
+            if (excludeId is not null && Entries[i].Id == excludeId)
+            {
+                continue;
+            }
+
+            if (string.Equals(Entries[i].Date, isoDate, StringComparison.Ordinal))
+            {
+                sameDateIndex = i;
+                break;
+            }
+        }
+
+        if (sameDateIndex >= 0)
+        {
+            return sameDateIndex;
+        }
+
+        for (var i = 0; i < Entries.Count; i++)
+        {
+            if (excludeId is not null && Entries[i].Id == excludeId)
+            {
+                continue;
+            }
+
+            if (string.Compare(Entries[i].Date, isoDate, StringComparison.Ordinal) > 0)
+            {
+                return i;
+            }
+        }
+
+        return Entries.Count;
     }
 
     public void ReorderEntries(IReadOnlyList<TripEntry> ordered)
@@ -421,6 +534,13 @@ public sealed class AppStateService
     {
         Settings = settings;
         Save();
+    }
+
+    public void AcknowledgeReleaseNotes(string version)
+    {
+        Settings.ReleaseNotesAcknowledgedVersion = version.Trim();
+        Save();
+        Changed?.Invoke(this, EventArgs.Empty);
     }
 
     private EntrySet GetActiveSet()

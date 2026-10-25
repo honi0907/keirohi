@@ -30,6 +30,7 @@
         <StackPanel Spacing="8">
           <TextBlock FontWeight="SemiBold" Text="オンライン更新"/>
           <TextBlock x:Name="VersionText" Opacity="0.8" TextWrapping="Wrap"/>
+          <Button Content="更新履歴…" HorizontalAlignment="Left" MinHeight="36" Click="ReleaseNotesHistory_Click"/>
           <Button x:Name="CheckUpdateButton" Content="更新を確認" Click="CheckUpdate_Click"/>
           <TextBlock x:Name="UpdateStatusText" Opacity="0.75" TextWrapping="Wrap"/>
         </StackPanel>

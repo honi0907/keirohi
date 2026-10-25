@@ -54,6 +54,48 @@ public partial class ExportView : UserControl
         await DialogService.ShowOkAsync("保存しました", folder);
     }
 
+    private async void ImportPdf_Click(object? sender, RoutedEventArgs e)
+    {
+        var path = await PickOpenPathAsync(["pdf"], "モバイル Suica PDF を選択");
+        if (path is null)
+        {
+            return;
+        }
+
+        MobileSuicaPdfParseResult parsed;
+        try
+        {
+            parsed = MobileSuicaPdfImporter.ParseFile(path);
+        }
+        catch (Exception ex)
+        {
+            await DialogService.ShowOkAsync("PDF 取込", $"PDF を読み込めませんでした。\n\n{ex.Message}");
+            return;
+        }
+
+        if (parsed.Entries.Count == 0)
+        {
+            await DialogService.ShowOkAsync(
+                "PDF 取込",
+                $"鉄道（入/出）またはバス等として読み取れる行がありませんでした（スキップ {parsed.SkippedLines} 行）。");
+            return;
+        }
+
+        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
+        if (owner is null)
+        {
+            return;
+        }
+
+        var importResult = await MobileSuicaPdfImportService.TryImportAsync(parsed.Entries, parsed.SkippedLines, owner);
+        if (importResult.Success)
+        {
+            StatusText.Text = $"PDF から {parsed.Entries.Count} 件を取り込みました（スキップ {parsed.SkippedLines} 行）。";
+            RefreshSummary();
+            await DestinationBatchUiHelper.ShowForImportedEntryIdsAsync(owner, importResult.ImportedEntryIds);
+        }
+    }
+
     private async void ImportCsv_Click(object? sender, RoutedEventArgs e)
     {
         var path = await PickOpenPathAsync(["csv"]);
@@ -144,7 +186,7 @@ public partial class ExportView : UserControl
         return file?.TryGetLocalPath();
     }
 
-    private async Task<string?> PickOpenPathAsync(IReadOnlyList<string> extensions)
+    private async Task<string?> PickOpenPathAsync(IReadOnlyList<string> extensions, string title = "CSV を選択")
     {
         var top = TopLevel.GetTopLevel(this);
         if (top?.StorageProvider is not { } storage)
@@ -154,7 +196,7 @@ public partial class ExportView : UserControl
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "CSV を選択",
+            Title = title,
             AllowMultiple = false,
             FileTypeFilter =
             [

@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Keirohi.Avalonia.Windows.WhatsNewWindow"
+        Title="更新のお知らせ"
+        Width="520"
+        Height="480"
+        MinWidth="420"
+        MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="今後表示しない" MinHeight="36" ToolTip.Tip="このバージョンでは起動時に出さない。新しい版に更新すると再び表示されます。"
+              Click="DoNotShowAgain_Click"/>
+      <Button Content="OK" MinHeight="36" Classes="accent" Click="Ok_Click"/>
+    </StackPanel>
+    <TextBlock x:Name="HeaderText" DockPanel.Dock="Top" Margin="0,0,0,8" FontSize="18" FontWeight="SemiBold" TextWrapping="Wrap"/>
+    <ScrollViewer>
+      <ItemsControl x:Name="ItemsList">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,6" Spacing="8">
+              <TextBlock VerticalAlignment="Top" Text="・"/>
+              <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

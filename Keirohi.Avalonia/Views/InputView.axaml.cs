@@ -1,9 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using Keirohi_App.Models;
 using Keirohi_App.Services;
 using Keirohi.Avalonia.Helpers;
+using Keirohi.Avalonia.Windows;
 
 namespace Keirohi.Avalonia.Views;
 
@@ -232,5 +234,40 @@ public partial class InputView : UserControl
             DepartureBox.Text ?? "",
             ArrivalBox.Text ?? "",
             GetSelectedMode());
+    }
+
+    private async void RecallRouteHistory_Click(object? sender, RoutedEventArgs e)
+    {
+        var history = AppHost.State.GetRouteSectionHistory();
+        var owner = this.GetVisualRoot() as Window ?? AppHost.MainWindowInstance;
+        if (history.Count == 0)
+        {
+            await DialogService.ShowOkAsync(
+                "区間の履歴",
+                "履歴はまだありません。明細を登録するか、設定の「運賃の履歴」で区間を登録してください。",
+                owner);
+            return;
+        }
+
+        var dialog = new RouteSectionHistoryWindow(history);
+        if (owner is null || !await dialog.ShowDialog<bool>(owner))
+        {
+            return;
+        }
+
+        if (dialog.SelectedEntry is not { } item)
+        {
+            return;
+        }
+
+        ApplyRouteHistory(item);
+    }
+
+    private void ApplyRouteHistory(RouteSectionHistoryEntry item)
+    {
+        DepartureBox.Text = item.Departure;
+        ArrivalBox.Text = item.Arrival;
+        ModeBox.SelectedIndex = item.Mode == TransportMode.Bus ? 1 : 0;
+        SetAmountFromFare(item.Amount, "区間: 履歴から入力");
     }
 }

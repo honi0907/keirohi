@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.2" />
+    <PackageReference Include="PdfPig" Version="0.1.16" />
     <PackageReference Include="System.Text.Encoding.CodePages" Version="8.0.0" />
   </ItemGroup>
 

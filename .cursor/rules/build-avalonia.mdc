@@ -1,0 +1,33 @@
+---
+description: Avalonia ビルド前に起動中の通勤経路費を必ずエージェントが終了する（MSB3026 防止）
+alwaysApply: true
+---
+
+# Avalonia ビルド（必須）
+
+`Keirohi.Avalonia` を **dotnet build / publish** する前に、Windows でアプリが起動していると `bin\Debug\net8.0-windows\*.dll` がロックされて失敗する（MSB3026）。
+
+## 絶対ルール（エージェント）
+
+- **ユーザーに「アプリを終了してください」と頼まない。** エージェントが `Stop-KeirohiAvaloniaIfRunning.ps1` で終了させる。
+- **`dotnet build` / `dotnet publish` の直前に、同じターンで必ず Stop を実行する。** Stop なしのビルドコマンドだけを送らない。
+- Debug ビルドは **`.\scripts\Build-Debug-Avalonia.ps1` を優先**（内部で Stop → build）。
+- Release は **`.\scripts\Build-Release-Avalonia.ps1`**（先頭で Stop 済み）。
+
+## 手順
+
+1. リポジトリルートで:
+
+```powershell
+.\scripts\Stop-KeirohiAvaloniaIfRunning.ps1
+```
+
+2. 続けてビルド（または 1 を含むスクリプトを使う）:
+
+```powershell
+.\scripts\Build-Debug-Avalonia.ps1
+```
+
+3. どうしても `dotnet build Keirohi.Avalonia/Keirohi.Avalonia.csproj -f net8.0-windows` だけ使う場合も、**1 と同ターン・同メッセージ内**で先に Stop する。
+
+4. MSB3026 / ファイルロックが出たら: Stop を再実行 → ビルドを **1 回だけ** リトライ。

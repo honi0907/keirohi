@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Keirohi.Avalonia.Windows.RouteSectionHistoryWindow"
+        Title="区間の履歴"
+        Width="560"
+        Height="480"
+        MinWidth="440"
+        MinHeight="320"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="キャンセル" MinHeight="36" Click="Cancel_Click"/>
+      <Button Content="入力に反映" MinHeight="36" Classes="accent" Click="Apply_Click"/>
+    </StackPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8" Spacing="8">
+      <TextBlock TextWrapping="Wrap"
+                 Text="記憶した運賃と、登録済み明細の区間から選べます。行をダブルクリックでも反映できます。"/>
+      <TextBox x:Name="SearchBox" MinHeight="36" Watermark="検索（スペース区切りで AND）" TextChanged="SearchBox_TextChanged"/>
+      <TextBlock x:Name="FilterStatusText" Opacity="0.75"/>
+    </StackPanel>
+    <ListBox x:Name="HistoryList" DoubleTapped="HistoryList_DoubleTapped"/>
+  </DockPanel>
+</Window>

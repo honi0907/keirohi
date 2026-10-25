@@ -93,6 +93,8 @@ public static class TripEntryEditDialog
                 Note = noteBox.Text?.Trim() ?? "",
                 Amount = amount,
                 Mode = mode,
+                FromMobileSuicaPdf = entry.FromMobileSuicaPdf,
+                PdfImportOrder = entry.PdfImportOrder,
             });
             dialog.Close();
         };

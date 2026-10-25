@@ -4,7 +4,13 @@ namespace Keirohi.Avalonia.Helpers;
 
 public static class EntryRowBackgroundBrushes
 {
-    public static IBrush Default { get; } = new SolidColorBrush(Color.Parse("#FFFFFFFF"));
+    /// <summary>日付グループ（偶数）。手入力・PDF 共通。</summary>
+    public static IBrush DateBandA { get; } = new SolidColorBrush(Color.Parse("#FFFFFFFF"));
 
-    public static IBrush Alternate { get; } = new SolidColorBrush(Color.Parse("#FFE8F4FC"));
+    /// <summary>日付グループ（奇数）。手入力・PDF 共通。</summary>
+    public static IBrush DateBandB { get; } = new SolidColorBrush(Color.Parse("#FFE8F4FC"));
+
+    public static IBrush Default => DateBandA;
+
+    public static IBrush Alternate => DateBandB;
 }

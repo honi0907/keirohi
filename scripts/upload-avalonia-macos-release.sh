@@ -34,3 +34,10 @@ for dmg in "${assets[@]}"; do
 done
 
 echo "Done: https://github.com/$repo/releases/tag/$tag"
+
+sync="$root/scripts/update-release-sync.sh"
+if [[ -x "$sync" ]]; then
+  "$sync" mac
+elif [[ -f "$sync" ]]; then
+  bash "$sync" mac
+fi

@@ -33,4 +33,7 @@ public sealed class AppSettings
     public int PrintMarginTop { get; set; } = 59;
 
     public int PrintMarginBottom { get; set; } = 59;
+
+    /// <summary>更新履歴ポップアップを確認済みとしたバージョン（これより新しい版で再表示）。</summary>
+    public string ReleaseNotesAcknowledgedVersion { get; set; } = "";
 }

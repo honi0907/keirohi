@@ -16,7 +16,7 @@
           <ListBox x:Name="NavList" Grid.Row="0" MaxHeight="280" SelectionChanged="NavList_SelectionChanged"
                    Background="Transparent" BorderThickness="0">
             <ListBoxItem Tag="input">入力</ListBoxItem>
-            <ListBoxItem Tag="export">出力</ListBoxItem>
+            <ListBoxItem Tag="export">出力・取り込み</ListBoxItem>
             <ListBoxItem Tag="patterns">パターン</ListBoxItem>
             <ListBoxItem Tag="settings">設定</ListBoxItem>
           </ListBox>

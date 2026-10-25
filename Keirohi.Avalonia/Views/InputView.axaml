@@ -13,6 +13,7 @@
           <TextBox x:Name="DestinationBox" Watermark="目的地（精算用）"/>
           <TextBox x:Name="DepartureBox" Watermark="出発" TextChanged="StationFields_TextChanged"/>
           <TextBox x:Name="ArrivalBox" Watermark="到着" TextChanged="StationFields_TextChanged"/>
+          <Button Content="履歴から入力…" HorizontalAlignment="Left" MinHeight="36" Click="RecallRouteHistory_Click"/>
           <Grid ColumnDefinitions="112,*" MaxWidth="340">
             <ComboBox x:Name="ModeBox" Grid.Column="0" SelectedIndex="0" SelectionChanged="ModeBox_SelectionChanged">
               <ComboBoxItem Content="電車" Tag="train"/>

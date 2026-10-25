@@ -18,6 +18,11 @@ public sealed class TripEntryItem : INotifyPropertyChanged
     public string AmountText { get; set; } = "";
     public string Line2 { get; set; } = "";
 
+    public bool FromMobileSuicaPdf { get; init; }
+
+    /// <summary>一覧の並びで日付が前の行より古い（要修正）。</summary>
+    public bool HasDateOrderWarning { get; set; }
+
     /// <summary>日付グループの先頭行など、行間用の外側余白。</summary>
     public Thickness ItemMargin { get; set; }
 
@@ -59,6 +64,7 @@ public sealed class TripEntryItem : INotifyPropertyChanged
             RouteSummary = $"{entry.Date}  {entry.Departure} → {entry.Arrival}",
             AmountText = $"¥{entry.Amount:N0}",
             Line2 = $"{mode} / 目的地: {entry.Destination}  {entry.Note}",
+            FromMobileSuicaPdf = entry.FromMobileSuicaPdf,
         };
     }
 

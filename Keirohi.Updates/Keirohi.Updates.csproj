@@ -7,4 +7,8 @@
     <RootNamespace>Keirohi_App</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\release-notes.json" />
+  </ItemGroup>
+
 </Project>

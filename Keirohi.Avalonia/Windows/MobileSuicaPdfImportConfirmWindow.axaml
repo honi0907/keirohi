@@ -1,0 +1,30 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:Keirohi.Avalonia.Models"
+        x:Class="Keirohi.Avalonia.Windows.MobileSuicaPdfImportConfirmWindow"
+        Title="PDF 取込"
+        Width="720"
+        Height="560"
+        MinWidth="560"
+        MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+      <Button Content="キャンセル" MinHeight="36" Click="Cancel_Click"/>
+      <Button Content="取り込む" MinHeight="36" Classes="accent" Click="Import_Click"/>
+    </StackPanel>
+    <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8" Spacing="4">
+      <TextBlock x:Name="SummaryText" TextWrapping="Wrap"/>
+      <TextBlock x:Name="SelectionSummaryText" FontWeight="SemiBold" TextWrapping="Wrap"/>
+    </StackPanel>
+    <ScrollViewer>
+      <ItemsControl x:Name="PreviewItems">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="models:MobileSuicaPdfImportRowItem">
+            <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Line}" Margin="0,2"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

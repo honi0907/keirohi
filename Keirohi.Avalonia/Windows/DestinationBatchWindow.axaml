@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Keirohi.Avalonia.Windows.DestinationBatchWindow"
+        Title="目的地をまとめて入力"
+        Width="640"
+        Height="520"
+        MinWidth="480"
+        MinHeight="360"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0" Spacing="8">
+      <TextBlock x:Name="HintText" Opacity="0.8" TextWrapping="Wrap"/>
+      <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="8">
+        <Button Content="あとで" MinHeight="36" Click="Later_Click"/>
+        <Button Content="反映" MinHeight="36" Classes="accent" Click="Apply_Click"/>
+      </StackPanel>
+    </StackPanel>
+    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8" TextWrapping="Wrap"
+               Text="日付ごと・明細の並び順に区間を表示します。ある行に目的地を入力すると、同じ日付のその行より下の欄にも同じ文字が入ります（上書き）。空欄のままの行は反映時に変更しません。"/>
+    <ScrollViewer>
+      <StackPanel x:Name="SectionHost" Spacing="12"/>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

@@ -22,8 +22,10 @@ dotnet run --project Keirohi.Avalonia/Keirohi.Avalonia.csproj -c Debug -f net8.0
 ## 開発
 
 ```powershell
-dotnet build Keirohi.Avalonia/Keirohi.Avalonia.csproj -f net8.0-windows
+.\scripts\Build-Debug-Avalonia.ps1
 ```
+
+（起動中の通勤経路費があれば自動終了してからビルド）
 
 共有ライブラリ: `Keirohi.Core` / `Keirohi.Updates`。WinUI プロジェクトはビルド不要です。
 
@@ -35,7 +37,9 @@ dotnet build Keirohi.Avalonia/Keirohi.Avalonia.csproj -f net8.0-windows
 .\scripts\Build-AppIcon-Windows.ps1
 ```
 
-Release ビルド（`Build-Release-Avalonia.ps1`）では自動実行されます。
+Release ビルド（`Build-Release-Avalonia.ps1`）では自動実行されます。Release 表 [docs/RELEASE-SYNC.md](./docs/RELEASE-SYNC.md) も同スクリプト／Mac の upload スクリプトで自動更新されます。
+
+**Windows で Debug ビルド:** 通勤経路費が起動中だと DLL がロックされて失敗します。`.\scripts\Build-Debug-Avalonia.ps1` を使う（起動中のアプリを自動終了してからビルド）。Cursor エージェントも [`.cursor/rules/build-avalonia.mdc`](./.cursor/rules/build-avalonia.mdc) に従い、ユーザーに終了を頼まず Stop スクリプトを先に実行する。
 
 ## GitHub Release
 

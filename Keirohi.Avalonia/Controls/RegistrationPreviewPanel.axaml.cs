@@ -146,20 +146,25 @@ public partial class RegistrationPreviewPanel : UserControl
     {
         var selectedId = EntryList.SelectedItem is TripEntryItem selected ? selected.Id : null;
         Items.Clear();
+        var dateOrderAnomalyIds = DateFormatHelper.GetDateOrderAnomalyEntryIds(AppHost.State.Entries);
         string? lastDate = null;
-        var useAlternate = false;
+        string? lastBandDate = null;
+        var useBandB = false;
         foreach (var entry in AppHost.State.Entries)
         {
-            if (lastDate is not null && !string.Equals(entry.Date, lastDate, StringComparison.Ordinal))
-            {
-                useAlternate = !useAlternate;
-            }
-
             var dateChanged = lastDate is not null &&
                               !string.Equals(entry.Date, lastDate, StringComparison.Ordinal);
             lastDate = entry.Date;
             var item = TripEntryItem.From(entry);
-            item.RowBackground = useAlternate ? Alternate : Default;
+            item.HasDateOrderWarning = dateOrderAnomalyIds.Contains(entry.Id);
+            if (lastBandDate is not null && !string.Equals(entry.Date, lastBandDate, StringComparison.Ordinal))
+            {
+                useBandB = !useBandB;
+            }
+
+            lastBandDate = entry.Date;
+            item.RowBackground = useBandB ? Alternate : Default;
+
             item.ItemMargin = dateChanged ? new Thickness(0, 8, 0, 0) : default;
             Items.Add(item);
         }
@@ -186,7 +191,7 @@ public partial class RegistrationPreviewPanel : UserControl
         var dateOutOfOrder = DateFormatHelper.HasDateOrderAnomalyInDisplayOrder(AppHost.State.Entries);
         DateOrderWarningBorder.IsVisible = dateOutOfOrder;
         DateOrderWarningText.Text = dateOutOfOrder
-            ? "一覧の並びが日付順ではありません（後の日付が前の行より上にあるなど）。↑↓で直せます。Excel・印刷では日付順に並べ替えて出力します。"
+            ? "一覧の並びが日付順ではありません（後の日付が前の行より上にあるなど）。ドラッグ、または行の右クリック「正しい日付へ移動」で直せます。Excel・印刷では日付順に並べ替えて出力します。"
             : "";
 
         UpdateEntryLimitWarning(count);
@@ -302,20 +307,26 @@ public partial class RegistrationPreviewPanel : UserControl
         }
     }
 
-    private void MoveUp_Click(object? sender, RoutedEventArgs e)
+    private async void BatchDestination_Click(object? sender, RoutedEventArgs e)
     {
-        if (EntryList.SelectedItem is TripEntryItem item)
+        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
+        if (owner is null)
         {
-            AppHost.State.MoveEntry(item.Id, -1);
-            Reselect(item.Id);
+            return;
         }
+
+        await DestinationBatchUiHelper.ShowForCurrentSetDestinationsAsync(owner);
     }
 
-    private void MoveDown_Click(object? sender, RoutedEventArgs e)
+    private void MoveToCorrectDate_Click(object? sender, RoutedEventArgs e)
     {
-        if (EntryList.SelectedItem is TripEntryItem item)
+        if (EntryList.SelectedItem is not TripEntryItem item)
         {
-            AppHost.State.MoveEntry(item.Id, 1);
+            return;
+        }
+
+        if (AppHost.State.MoveEntryToCorrectDatePosition(item.Id))
+        {
             Reselect(item.Id);
         }
     }

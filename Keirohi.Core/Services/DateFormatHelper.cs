@@ -64,6 +64,13 @@ public static class DateFormatHelper
     /// <summary>一覧の表示順で、カレンダー上の日付が逆転している箇所があるか。</summary>
     public static bool HasDateOrderAnomalyInDisplayOrder(IEnumerable<TripEntry> entriesInDisplayOrder)
     {
+        return GetDateOrderAnomalyEntryIds(entriesInDisplayOrder).Count > 0;
+    }
+
+    /// <summary>表示順で前の行より日付が古い（逆転している）明細の Id。</summary>
+    public static HashSet<string> GetDateOrderAnomalyEntryIds(IEnumerable<TripEntry> entriesInDisplayOrder)
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
         DateTime? previous = null;
         foreach (var entry in entriesInDisplayOrder)
         {
@@ -74,13 +81,13 @@ public static class DateFormatHelper
 
             if (previous is not null && current < previous.Value)
             {
-                return true;
+                ids.Add(entry.Id);
             }
 
             previous = current;
         }
 
-        return false;
+        return ids;
     }
 
     public static List<TripEntry> EntriesForSuicaSheet(IEnumerable<TripEntry> entries)
@@ -89,7 +96,7 @@ public static class DateFormatHelper
         return list
             .Select((entry, index) => (entry, index))
             .OrderBy(x => x.entry.Date, StringComparer.Ordinal)
-            .ThenBy(x => x.index)
+            .ThenBy(x => x.entry.FromMobileSuicaPdf ? x.entry.PdfImportOrder : x.index)
             .Take(AppStateService.MaxSuicaEntries)
             .Select(x => x.entry)
             .ToList();

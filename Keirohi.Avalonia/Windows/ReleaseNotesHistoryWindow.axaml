@@ -1,0 +1,40 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Keirohi.Avalonia.Windows.ReleaseNotesHistoryWindow"
+        Title="更新履歴"
+        Width="640"
+        Height="560"
+        MinWidth="480"
+        MinHeight="400"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <Button DockPanel.Dock="Bottom" Margin="0,12,0,0" HorizontalAlignment="Right" MinHeight="36"
+            Content="閉じる" Click="Close_Click"/>
+    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8" Opacity="0.85" TextWrapping="Wrap"
+               Text="各バージョンの主な変更内容です。新しい順に表示しています。"/>
+    <ScrollViewer>
+      <ItemsControl x:Name="VersionList">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate>
+            <Border Margin="0,0,0,12" Padding="12" CornerRadius="6" BorderThickness="1"
+                    BorderBrush="{DynamicResource ThemeBorderLowBrush}">
+              <StackPanel Spacing="6">
+                <TextBlock FontWeight="SemiBold" Text="{Binding Heading}"/>
+                <ItemsControl ItemsSource="{Binding Items}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <StackPanel Orientation="Horizontal" Margin="0,0,0,4" Spacing="8">
+                        <TextBlock VerticalAlignment="Top" Text="・"/>
+                        <TextBlock Text="{Binding}" TextWrapping="Wrap"/>
+                      </StackPanel>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

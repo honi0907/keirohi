@@ -1,19 +1,23 @@
-# Release 同期（Win Setup / Mac DMG）
+﻿# Release 同期（Win Setup / Mac DMG）
 
 **正:** [Keirohi.Avalonia/Keirohi.Avalonia.csproj](../Keirohi.Avalonia/Keirohi.Avalonia.csproj) の `<Version>` = GitHub [keirohi-avalonia](https://github.com/honi0907/keirohi-avalonia) の tag `vX.Y.Z`  
 **ソース:** [honi0907/keirohi](https://github.com/honi0907/keirohi) の `main`（遅れている側は先に `git pull`）
 
+**自動更新:** `Build-Release-Avalonia.ps1`（Win）と `upload-avalonia-macos-release.sh`（Mac）がこの表と「次にやること」を更新します。Version 変更時は `.\scripts\Update-ReleaseSync.ps1 -EnsureRow -RefreshTodos` を実行。
+
 | Version | main push | Win Setup | Mac DMG | メモ |
 |---------|-----------|-----------|---------|------|
-| 1.1.5   | 済        | 済        | 未      | 通経アイコン・通勤経路費・WinUI 凍結・bat 整理 |
-| 1.1.4   | 済        | 済        | 済      | Mac 側機能（履歴・外観等） |
+| 1.1.7   | 未         | 未         | 未         | PDF取込チェック・目的地まとめ・区間履歴・明細UI |
+| 1.1.5   | 済         | 済         | 未         | 通経アイコン・通勤経路費・WinUI 凍結・bat 整理 |
+| 1.1.4   | 済         | 済         | 済         | Mac 側機能（履歴・外観等） |
 
 詳細な変更内容は GitHub Release の notes と `git log` を参照。WinUI 凍結メモは [avalonia-mac-changes-for-winui.md](./avalonia-mac-changes-for-winui.md)。
 
-## 次にやること
-
-- [ ] **Mac:** `git pull` → `./scripts/build-publish-avalonia-macos.sh` → `bundle` → `create-avalonia-macos-dmg.sh` → `./scripts/upload-avalonia-macos-release.sh`（tag **v1.1.5** に DMG を追加）
-- [ ] 上記完了後、この表の 1.1.5 の **Mac DMG** を「済」に更新
+## Next steps
+- [ ] **Mac:** `git pull` -> DMG build -> `./scripts/upload-avalonia-macos-release.sh` (tag **v1.1.7**)
+- [ ] **Windows:** `.\scripts\Build-Release-Avalonia.ps1` (tag **v1.1.7**)
+- [ ] **main:** commit and `git push origin main`
+- [ ] After the steps above, skim the table (Release scripts update it automatically)
 
 ## ルール（3 行）
 
@@ -29,8 +33,8 @@
 
 **Windows で改良して Release まで**
 
-> 変更を commit & push して Version を上げ、Setup Release。RELEASE-SYNC に Win 完了を書いて。
+> 変更を commit & push して Version を上げ、Setup Release（表は Build-Release-Avalonia.ps1 が自動更新）。
 
 **Mac だけ先行したあと**
 
-> main の Version X.Y.Z に合わせて Windows Setup が無ければ Release に upload。RELEASE-SYNC を更新。
+> main の Version X.Y.Z に合わせて Windows Setup が無ければ Release に upload（Mac upload 後は表が自動更新）。

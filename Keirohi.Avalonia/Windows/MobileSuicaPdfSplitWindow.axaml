@@ -1,0 +1,36 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:models="using:Keirohi.Avalonia.Models"
+        x:Class="Keirohi.Avalonia.Windows.MobileSuicaPdfSplitWindow"
+        Title="PDF 取込 — セット分割"
+        Width="720"
+        Height="560"
+        MinWidth="560"
+        MinHeight="420"
+        WindowStartupLocation="CenterOwner">
+  <DockPanel Margin="16">
+    <StackPanel DockPanel.Dock="Bottom" Margin="0,12,0,0" Spacing="8">
+      <TextBlock x:Name="SummaryText" TextWrapping="Wrap"/>
+      <TextBlock x:Name="SelectionSummaryText" FontWeight="SemiBold" TextWrapping="Wrap"/>
+      <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+        <StackPanel Spacing="4">
+          <TextBlock x:Name="SplitHintText" TextWrapping="Wrap" Opacity="0.85"/>
+          <Slider x:Name="SplitSlider" Minimum="0" Maximum="1" TickFrequency="1" IsSnapToTickEnabled="True"/>
+        </StackPanel>
+        <Button Grid.Column="1" Content="キャンセル" MinHeight="36" Click="Cancel_Click"/>
+        <Button Grid.Column="2" Content="取り込む" MinHeight="36" Classes="accent" Click="Import_Click"/>
+      </Grid>
+    </StackPanel>
+    <TextBlock DockPanel.Dock="Top" Margin="0,0,0,8" TextWrapping="Wrap"
+               Text="54件を超えるため2つのセットに分けます。チェックした行だけ取り込みます。スライダーで分割位置（先頭何件を1つ目のセットに入れるか）を指定してください。"/>
+    <ScrollViewer>
+      <ItemsControl x:Name="PreviewItems">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate DataType="models:MobileSuicaPdfImportRowItem">
+            <CheckBox IsChecked="{Binding IsChecked}" Content="{Binding Line}" Margin="0,2"/>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+  </DockPanel>
+</Window>

@@ -1,6 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Keirohi_App.Helpers;
+using Keirohi.Avalonia.Helpers;
 using Keirohi.Avalonia.Services;
 using Keirohi.Avalonia.Views;
 
@@ -40,6 +41,7 @@ public partial class MainWindow : Window
         PageHost.Content = inputView;
         RegistrationPreview.SetRegisterButton(RegisterToEntriesButton);
         ConfigureSharedRegistration("input");
+        _ = ReleaseNotesUiHelper.PromptOnStartupAsync();
         _ = OnlineUpdateUiHelper.PromptOnStartupAsync();
     }
 
@@ -131,7 +133,7 @@ public partial class MainWindow : Window
         {
             "input" => "区間を入力",
             "patterns" => "編集",
-            "export" => "ファイル出力",
+            "export" => "出力・取り込み",
             _ => EditorColumnTitle.Text ?? "",
         };
     }

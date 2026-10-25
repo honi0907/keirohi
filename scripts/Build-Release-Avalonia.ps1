@@ -6,11 +6,15 @@ $ErrorActionPreference = "Stop"
 $root = Split-Path -Parent $PSScriptRoot
 Set-Location $root
 
+& (Join-Path $root "scripts\Stop-KeirohiAvaloniaIfRunning.ps1")
 & (Join-Path $root "scripts\Build-AppIcon-Windows.ps1")
 
 $csproj = Join-Path $root "Keirohi.Avalonia\Keirohi.Avalonia.csproj"
 [xml]$xml = Get-Content $csproj
 $version = ($xml.Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1).Trim()
+
+& (Join-Path $root "scripts\Update-ReleaseSync.ps1") -Version $version -EnsureRow -RefreshTodos
+
 $publishDir = Join-Path $root "dist\publish-avalonia\win-x64"
 if (Test-Path $publishDir) { Remove-Item $publishDir -Recurse -Force }
 
@@ -29,6 +33,8 @@ if (-not (Test-Path $setup)) { throw "Missing setup: $setup" }
 
 if ($SkipGitHub) {
     Write-Host "SkipGitHub: $setup"
+    & (Join-Path $root "scripts\Update-ReleaseSync.ps1") -Version $version -Set WinSetup -Value Uncertain -RefreshTodos
+    Write-Host "RELEASE-SYNC: Win Setup marked 要確認 (GitHub Release skipped)"
     exit 0
 }
 
@@ -48,3 +54,4 @@ $notes = "通勤経路費 v$version（Windows）。Install to ``Program Files\Ke
 gh release create $tag $setup --repo $repo --title "Keirohi Avalonia v$version" --notes $notes
 
 Write-Host "Release created: $repo $tag"
+& (Join-Path $root "scripts\Update-ReleaseSync.ps1") -Version $version -Set WinSetup -RefreshTodos
