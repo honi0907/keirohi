@@ -1,6 +1,8 @@
+using Avalonia.Controls;
 using Avalonia.Threading;
 using Keirohi_App.Updates;
 using Keirohi.Avalonia.Helpers;
+using Keirohi.Avalonia.Windows;
 
 namespace Keirohi.Avalonia.Services;
 
@@ -23,14 +25,26 @@ public static class OnlineUpdateUiHelper
             return;
         }
 
+        OnlineUpdateProgressWindow? progressWindow = null;
         try
         {
             var progress = new Progress<OnlineUpdateProgress>(p =>
             {
-                if (!string.IsNullOrEmpty(p.Message))
+                RunOnUi(() =>
                 {
-                    RunOnUi(() => setStatus(p.Message));
-                }
+                    if (!string.IsNullOrEmpty(p.Message))
+                    {
+                        setStatus(p.Message);
+                    }
+
+                    if (!OnlineUpdateProgressWindow.ShouldShowForProgress(p))
+                    {
+                        return;
+                    }
+
+                    progressWindow ??= ShowProgressWindow();
+                    progressWindow?.Apply(p);
+                });
             });
 
             var confirmPrimary = UpdatePlatform.IsMacOs ? "DMG を開く" : "更新して再起動";
@@ -49,8 +63,29 @@ public static class OnlineUpdateUiHelper
         }
         finally
         {
+            RunOnUi(() =>
+            {
+                if (progressWindow is not null)
+                {
+                    progressWindow.Close();
+                    progressWindow = null;
+                }
+            });
             Interlocked.Exchange(ref busy, 0);
         }
+    }
+
+    private static OnlineUpdateProgressWindow? ShowProgressWindow()
+    {
+        var owner = DialogService.Owner ?? AppHost.MainWindowInstance;
+        if (owner is null)
+        {
+            return null;
+        }
+
+        var window = new OnlineUpdateProgressWindow();
+        window.Show(owner);
+        return window;
     }
 
     private static void RunOnUi(Action action)
