@@ -7,7 +7,7 @@
 
 | Version | main push | Win Setup | Mac DMG | メモ |
 |---------|-----------|-----------|---------|------|
-| 1.1.7   | 未         | 未         | 未         | PDF取込チェック・目的地まとめ・区間履歴・明細UI |
+| 1.1.7   | 済         | 済         | 未         | PDF取込チェック・目的地まとめ・区間履歴・明細UI |
 | 1.1.5   | 済         | 済         | 未         | 通経アイコン・通勤経路費・WinUI 凍結・bat 整理 |
 | 1.1.4   | 済         | 済         | 済         | Mac 側機能（履歴・外観等） |
 
@@ -15,8 +15,6 @@
 
 ## Next steps
 - [ ] **Mac:** `git pull` -> DMG build -> `./scripts/upload-avalonia-macos-release.sh` (tag **v1.1.7**)
-- [ ] **Windows:** `.\scripts\Build-Release-Avalonia.ps1` (tag **v1.1.7**)
-- [ ] **main:** commit and `git push origin main`
 - [ ] After the steps above, skim the table (Release scripts update it automatically)
 
 ## ルール（3 行）
