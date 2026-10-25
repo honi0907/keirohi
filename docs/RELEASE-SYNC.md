@@ -7,7 +7,7 @@
 
 | Version | main push | Win Setup | Mac DMG | メモ |
 |---------|-----------|-----------|---------|------|
-| 1.1.8   | 済         | 済         | 未         | オンライン更新の進捗表示 |
+| 1.1.8   | 済         | 済         | 済         | オンライン更新の進捗表示 |
 | 1.1.7   | 済         | 済         | 済         | PDF取込チェック・目的地まとめ・区間履歴・明細UI |
 | 1.1.5   | 済         | 済         | 未         | 通経アイコン・通勤経路費・WinUI 凍結・bat 整理 |
 | 1.1.4   | 済         | 済         | 済         | Mac 側機能（履歴・外観等） |
@@ -15,8 +15,7 @@
 詳細な変更内容は GitHub Release の notes と `git log` を参照。WinUI 凍結メモは [avalonia-mac-changes-for-winui.md](./avalonia-mac-changes-for-winui.md)。
 
 ## Next steps
-- [ ] **Mac:** `git pull` -> DMG build -> `./scripts/upload-avalonia-macos-release.sh` (tag **v1.1.8**)
-- [ ] After the steps above, skim the table (Release scripts update it automatically)
+- [x] **v1.1.8** Win Setup / Mac DMG / main synced per table
 
 ## ルール（3 行）
 
