@@ -438,9 +438,9 @@
           <h1>通勤経路費</h1>
           <p id="headerSubtitle">オフライン利用 · データはこの端末のブラウザ内</p>
         </div>
-        <button type="button" class="sync-header-btn" id="btnOpenDataShare" aria-label="データの共有">
-          <span class="sync-icon" aria-hidden="true">↗</span>
-          <span>共有</span>
+        <button type="button" class="sync-header-btn" id="btnOpenDataShare" aria-label="JSON データ">
+          <span class="sync-icon" aria-hidden="true">⇅</span>
+          <span>JSON</span>
         </button>
       </div>
     </header>
@@ -576,27 +576,17 @@
     <div id="dataShareOverlay" class="sheet-overlay" hidden aria-hidden="true">
       <div class="sheet-panel" role="dialog" aria-labelledby="dataShareTitle">
         <div class="dialog-body">
-          <h3 id="dataShareTitle">データの同期</h3>
-          <p class="hint" style="margin-top:0">PC 版と同じ Drive フォルダで <strong>entry-sets / patterns / fare-memory</strong> を揃えます（推奨）。</p>
+          <h3 id="dataShareTitle">JSON データ</h3>
+          <p class="hint" style="margin-top:0">PC 版と同じ JSON ファイルで、明細・パターン・運賃履歴をやり取りします。</p>
           <p class="hint" id="appVersionLine" style="margin-top:0"></p>
-          <p class="hint" id="easyUpdateHint" style="margin-top:0"></p>
-          <button type="button" id="btnCheckUpdate" style="width:100%;margin-bottom:12px">更新を確認</button>
-          <h4 style="margin:0 0 8px;font-size:14px">Google Drive 同期</h4>
-          <p class="hint" id="driveSyncStatusText" style="margin-top:0"></p>
-          <label class="field-label">Drive フォルダ名（PC と同じ）</label>
-          <input type="text" id="driveFolderNameInput" autocomplete="off" placeholder="通勤経路費" />
-          <button type="button" id="btnDriveSignIn" style="width:100%;margin-top:8px">Google でログイン</button>
-          <button type="button" class="primary" id="btnDriveSyncNow" style="width:100%;margin-top:8px">今すぐ同期</button>
-          <button type="button" id="btnDriveSignOut" style="width:100%;margin-top:8px">ログアウト</button>
-          <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
-          <h4 style="margin:0 0 8px;font-size:14px">手動（JSON ファイル）</h4>
-          <p class="hint" style="margin-top:0">Drive が使えないときの予備。共有シートは <strong>.txt 名</strong>（中身は JSON）です。</p>
-          <button type="button" id="btnShareJson" style="width:100%">JSON を共有…</button>
-          <button type="button" id="btnImportJson" style="width:100%;margin-top:8px">JSON を取り込む…</button>
+          <button type="button" class="primary" id="btnDownloadJson" style="width:100%">JSON をダウンロード</button>
+          <button type="button" id="btnImportJson" style="width:100%;margin-top:8px">JSON を読み込む</button>
           <input type="file" id="importFileInput" accept=".json,application/json,.txt,text/plain" hidden />
+          <button type="button" id="btnCheckUpdate" style="width:100%;margin-top:12px">更新を確認</button>
+          <p class="hint" id="easyUpdateHint" style="margin-top:8px"></p>
           <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
-          <h4 style="margin:0 0 8px;font-size:14px">ローカルデータ</h4>
-          <p class="hint" style="margin-top:0">同期・取り込みの直前に、この端末内のデータを自動退避します。</p>
+          <h4 style="margin:0 0 8px;font-size:14px">取り込み前のバックアップ</h4>
+          <p class="hint" style="margin-top:0">読み込みの直前に、この端末内のデータを自動退避します。</p>
           <div class="data-status-line">
             <strong>取り込み前バックアップ</strong>
             <span id="localBackupStatusText">なし</span>
@@ -627,19 +617,13 @@
     </div>
   </dialog>
 
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <script src="google-config.js"></script>
-  <script src="drive-sync.js"></script>
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
-    const DRIVE_PREFS_KEY = "keirohi-drive-prefs-v1";
-    const DRIVE_SYNC_FILE_NAMES = ["entry-sets.json", "patterns.json", "fare-memory.json"];
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.16";
+    const APP_VERSION = "1.1.17";
     let dataShareHistoryActive = false;
     /** @type {ServiceWorkerRegistration | undefined} */
     let swRegistration;
-    let shareExportInFlight = false;
     const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
     const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
 
@@ -796,72 +780,10 @@
       }
     }
 
-    function buildShareExportPayload(json, filename) {
-      const isAndroid = /Android/i.test(navigator.userAgent);
-      /**
-       * Android Chrome: .json だと canShare は通るが share() が失敗しがち。
-       * .txt + text/plain のファイル共有だけが安定（中身は JSON のまま）。
-       */
-      if (isAndroid) {
-        const shareName = filename.replace(/\.json$/i, ".txt");
-        return { files: [new File([json], shareName, { type: "text/plain" })] };
-      }
-
-      const jsonFile = (type) => new File([json], filename, { type });
-      const candidates = [
-        { files: [jsonFile("application/json")] },
-        { files: [jsonFile("text/plain")] },
-        ...(json.length < 900_000 ? [{ title: "通勤経路費データ", text: json }] : []),
-      ];
-
-      for (const payload of candidates) {
-        if (typeof navigator.canShare === "function" && !navigator.canShare(payload)) {
-          continue;
-        }
-        return payload;
-      }
-      return candidates[0] || null;
-    }
-
-    /** タップ直後に navigator.share を1回だけ呼ぶ */
-    function shareExportJson() {
-      if (shareExportInFlight) {
-        return Promise.resolve();
-      }
-
+    function downloadExportJson() {
       const json = JSON.stringify(buildExportBundle(), null, 2);
-      const filename = exportFilename();
-
-      if (!navigator.share) {
-        downloadJsonFile(json, filename);
-        toast("この環境は共有シート非対応のためダウンロードしました", "info");
-        return Promise.resolve();
-      }
-
-      const payload = buildShareExportPayload(json, filename);
-      if (!payload) {
-        downloadJsonFile(json, filename);
-        toast("データが大きいためダウンロードしました", "info");
-        return Promise.resolve();
-      }
-
-      shareExportInFlight = true;
-      return navigator
-        .share(payload)
-        .then(() => {
-          toast("共有しました");
-        })
-        .catch((err) => {
-          if (err?.name === "AbortError") {
-            return;
-          }
-          downloadJsonFile(json, filename);
-          toast("共有を完了できなかったためダウンロードしました", "info");
-        })
-        .finally(() => {
-          shareExportInFlight = false;
-          releaseLayoutAfterSheet();
-        });
+      downloadJsonFile(json, exportFilename());
+      toast("JSON をダウンロードしました");
     }
 
     function applyImportBundle(bundle) {
@@ -1543,153 +1465,6 @@
       return d.toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
     }
 
-    function loadDrivePrefs() {
-      try {
-        const raw = localStorage.getItem(DRIVE_PREFS_KEY);
-        if (raw) {
-          return JSON.parse(raw);
-        }
-      } catch {
-        /* ignore */
-      }
-      return { folderName: "通勤経路費", lastSyncedAt: null };
-    }
-
-    function saveDrivePrefs(prefs) {
-      localStorage.setItem(DRIVE_PREFS_KEY, JSON.stringify(prefs));
-    }
-
-    function isDriveSignedIn() {
-      return Boolean(sessionStorage.getItem("keirohi-google-access-token"));
-    }
-
-    function getLocalDataRevisionMs() {
-      const ms = Date.parse(state.lastModified || "");
-      return Number.isFinite(ms) ? ms : 0;
-    }
-
-    function buildDriveUploadPayload() {
-      saveState();
-      const entrySets = {
-        activeSetId: state.store.activeSetId,
-        autoNameLegacyUnlockApplied: state.store.autoNameLegacyUnlockApplied ?? false,
-        sets: state.store.sets,
-      };
-      return {
-        "entry-sets.json": JSON.stringify(entrySets, null, 2),
-        "patterns.json": JSON.stringify(state.patterns, null, 2),
-        "fare-memory.json": JSON.stringify(
-          state.fareMemory.map((r) => ({
-            departure: r.departure,
-            arrival: r.arrival,
-            amount: r.amount,
-          })),
-          null,
-          2
-        ),
-      };
-    }
-
-    function applyDriveDownloaded(filesMap) {
-      if (filesMap["entry-sets.json"]) {
-        const parsed = JSON.parse(filesMap["entry-sets.json"]);
-        if (parsed.sets?.length) {
-          state.store = {
-            activeSetId: parsed.activeSetId || parsed.sets[0].id,
-            autoNameLegacyUnlockApplied: parsed.autoNameLegacyUnlockApplied ?? false,
-            sets: parsed.sets,
-          };
-        }
-      }
-      if (filesMap["patterns.json"]) {
-        const patterns = JSON.parse(filesMap["patterns.json"]);
-        if (Array.isArray(patterns)) {
-          state.patterns = patterns;
-          selectedPatternId = state.selectedPatternId || state.patterns[0]?.id || null;
-          state.selectedPatternId = selectedPatternId;
-        }
-      }
-      if (filesMap["fare-memory.json"]) {
-        const fares = JSON.parse(filesMap["fare-memory.json"]);
-        if (Array.isArray(fares)) {
-          state.fareMemory = fares;
-        }
-      }
-      selectedEntryId = null;
-      saveState();
-      renderPatterns();
-      renderEntries();
-      refreshInputLimit();
-      updateFareHint();
-    }
-
-    async function runDriveSync() {
-      if (!window.KeirohiDriveSync) {
-        throw new Error("Drive 同期モジュールを読み込めません。");
-      }
-      if (!KeirohiDriveSync.isConfigured()) {
-        throw new Error("Web 用 OAuth 未設定です（docs/google-drive-setup.md 参照）。");
-      }
-      if (!navigator.onLine) {
-        throw new Error("オフラインのため Drive 同期できません。");
-      }
-
-      const prefs = loadDrivePrefs();
-      const folderInput = document.getElementById("driveFolderNameInput");
-      const folderName = folderInput.value.trim() || prefs.folderName || "通勤経路費";
-      prefs.folderName = folderName;
-      saveDrivePrefs(prefs);
-
-      createPreSyncBackup();
-      const result = await KeirohiDriveSync.syncFolder(folderName, {
-        syncFileNames: DRIVE_SYNC_FILE_NAMES,
-        buildUploadPayload: async () => buildDriveUploadPayload(),
-        getFileLocalRevisionMs: () => getLocalDataRevisionMs(),
-        applyDownloaded: applyDriveDownloaded,
-      });
-      prefs.lastSyncedAt = new Date().toISOString();
-      saveDrivePrefs(prefs);
-      renderDataShareUi();
-      toast(result.downloadedAny ? "Drive から取り込みました" : "Drive に反映しました");
-      return result;
-    }
-
-    function renderDriveSyncUi() {
-      const statusEl = document.getElementById("driveSyncStatusText");
-      const folderInput = document.getElementById("driveFolderNameInput");
-      const prefs = loadDrivePrefs();
-      folderInput.value = prefs.folderName || "通勤経路費";
-
-      const disableAll = () => {
-        document.getElementById("btnDriveSignIn").disabled = true;
-        document.getElementById("btnDriveSyncNow").disabled = true;
-        document.getElementById("btnDriveSignOut").disabled = true;
-        folderInput.disabled = true;
-      };
-
-      if (!isSecureOrigin() || location.protocol === "file:") {
-        statusEl.textContent = "Drive 同期は HTTPS の URL 版でのみ利用できます。";
-        disableAll();
-        return;
-      }
-      if (!window.KeirohiDriveSync?.isConfigured()) {
-        statusEl.textContent =
-          "OAuth 未設定 — google-config.js に Web クライアント ID を設定してください（承認済み origin にこの URL を追加）。";
-        disableAll();
-        return;
-      }
-
-      const signedIn = isDriveSignedIn();
-      const last = prefs.lastSyncedAt ? formatBackupTime(prefs.lastSyncedAt) : "未同期";
-      statusEl.textContent = signedIn
-        ? `ログイン済み · 最終同期 ${last}`
-        : "未ログイン — Google でログインしてから同期してください。";
-      document.getElementById("btnDriveSignIn").disabled = signedIn;
-      document.getElementById("btnDriveSyncNow").disabled = !signedIn || !navigator.onLine;
-      document.getElementById("btnDriveSignOut").disabled = !signedIn;
-      folderInput.disabled = !signedIn;
-    }
-
     function compareVersions(a, b) {
       const pa = String(a).split(".").map((n) => Number(n) || 0);
       const pb = String(b).split(".").map((n) => Number(n) || 0);
@@ -1787,11 +1562,10 @@
     }
 
     function renderDataShareUi() {
-      renderDriveSyncUi();
       const backup = getPreSyncBackupMeta();
       document.getElementById("localBackupStatusText").textContent = backup
         ? `${formatBackupTime(backup.savedAt)} 時点`
-        : "なし（同期・取り込み時に自動作成）";
+        : "なし（読み込み時に自動作成）";
       document.getElementById("btnRestoreLocal").disabled = !backup;
       document.getElementById("appVersionLine").textContent = `この端末のバージョン: v${APP_VERSION}`;
       const hint = document.getElementById("easyUpdateHint");
@@ -1815,7 +1589,7 @@
         return;
       }
       el.textContent = navigator.onLine
-        ? "モバイル Web · Drive 同期または JSON 共有（PWA 対応）"
+        ? "モバイル Web · JSON で PC とデータ共有（PWA 対応）"
         : "オフライン · 編集は可能";
     }
 
@@ -1837,41 +1611,6 @@
       checkAppUpdate({ quiet: false });
     });
 
-    document.getElementById("btnDriveSignIn").addEventListener("click", () => {
-      if (!window.KeirohiDriveSync) {
-        toast("Drive 同期を読み込めません", "error");
-        return;
-      }
-      KeirohiDriveSync.signIn()
-        .then(() => {
-          toast("Google にログインしました");
-          renderDriveSyncUi();
-        })
-        .catch((err) => {
-          toast(err.message || String(err), "error");
-        });
-    });
-
-    document.getElementById("btnDriveSignOut").addEventListener("click", () => {
-      if (window.KeirohiDriveSync) {
-        KeirohiDriveSync.signOut();
-      }
-      toast("ログアウトしました", "info");
-      renderDriveSyncUi();
-    });
-
-    document.getElementById("btnDriveSyncNow").addEventListener("click", () => {
-      const btn = document.getElementById("btnDriveSyncNow");
-      btn.disabled = true;
-      runDriveSync()
-        .catch((err) => {
-          toast(err.message || String(err), "error");
-        })
-        .finally(() => {
-          renderDriveSyncUi();
-        });
-    });
-
     document.getElementById("btnApplyUpdate").addEventListener("click", async () => {
       const mode = document.getElementById("updateBanner").dataset.mode;
       if (mode === "open") {
@@ -1891,12 +1630,8 @@
       closeDataSharePanel();
     });
 
-    document.getElementById("btnShareJson").addEventListener("click", () => {
-      shareExportJson().catch((err) => {
-        if (err?.name !== "AbortError") {
-          toast(err.message || String(err), "error");
-        }
-      });
+    document.getElementById("btnDownloadJson").addEventListener("click", () => {
+      downloadExportJson();
     });
 
     document.getElementById("btnImportJson").addEventListener("click", () => {

@@ -31,119 +31,6 @@ public partial class SettingsView : UserControl
         AutoFillFareToggle.IsChecked = s.AutoFillFareEnabled;
         ShowSuicaPreviewPngAndPrintToggle.IsChecked = s.ShowSuicaPreviewPngAndPrint;
         VersionText.Text = $"現在のバージョン: {AppVersionReader.GetCurrentVersion()}";
-        RefreshDriveSyncUi();
-    }
-
-    private void RefreshDriveSyncUi()
-    {
-        var prefs = DriveSyncPreferencesStore.Load();
-        if (!CloudSyncSettingsHelper.IsDriveClientConfigured)
-        {
-            DriveSyncStatusText.Text =
-                $"OAuth 未設定 — {CloudSyncSettingsHelper.ClientSecretsHintPath} にクライアント JSON を置いてください。";
-        }
-        else
-        {
-            DriveSyncStatusText.Text = prefs.Connected
-                ? $"接続済み · 最終同期 {CloudSyncSettingsHelper.FormatSyncTime(prefs.LastSyncedAt)}"
-                : "未接続 — Google でログインしてください。";
-        }
-        DriveFolderBox.Text = prefs.Connected && !string.IsNullOrWhiteSpace(prefs.FolderName)
-            ? prefs.FolderName
-            : "";
-        DriveConnectButton.Content = prefs.Connected ? "アカウント確認" : "Google でログイン";
-        DrivePickFolderButton.IsEnabled = prefs.Connected;
-        DriveSyncNowButton.IsEnabled =
-            CloudSyncSettingsHelper.IsDriveClientConfigured
-            && prefs.Connected
-            && !string.IsNullOrWhiteSpace(prefs.FolderName);
-        DriveDisconnectButton.IsEnabled = prefs.Connected;
-
-        var manifest = LocalDataSyncBackupService.GetPreSyncBackupManifest();
-        LocalBackupStatusText.Text = manifest is null
-            ? "同期前バックアップ: なし（「今すぐ同期」で自動作成）"
-            : $"同期前バックアップ: {CloudSyncSettingsHelper.FormatBackupTime(manifest.CreatedAt)}";
-        RestoreLocalButton.IsEnabled = LocalDataSyncBackupService.HasPreSyncBackup;
-    }
-
-    private async void DriveConnect_Click(object? sender, RoutedEventArgs e)
-    {
-        DriveConnectButton.IsEnabled = false;
-        try
-        {
-            if (!CloudSyncSettingsHelper.IsDriveClientConfigured)
-            {
-                UpdateStatusText.Text = $"OAuth JSON を配置してください: {CloudSyncSettingsHelper.ClientSecretsHintPath}";
-                return;
-            }
-
-            var (ok, message) = await CloudSyncSettingsHelper.TrySignInAsync();
-            UpdateStatusText.Text = message;
-            if (!ok)
-            {
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(DriveSyncPreferencesStore.Load().FolderName))
-            {
-                var prefs = DriveSyncPreferencesStore.Load();
-                prefs.FolderName = "通勤経路費";
-                DriveSyncPreferencesStore.Save(prefs);
-            }
-        }
-        finally
-        {
-            DriveConnectButton.IsEnabled = true;
-            RefreshDriveSyncUi();
-        }
-    }
-
-    private async void DriveDisconnect_Click(object? sender, RoutedEventArgs e)
-    {
-        await CloudSyncSettingsHelper.SignOutAsync();
-        UpdateStatusText.Text = "Google Drive 接続を解除しました。";
-        RefreshDriveSyncUi();
-    }
-
-    private async void DrivePickFolder_Click(object? sender, RoutedEventArgs e)
-    {
-        var prefs = DriveSyncPreferencesStore.Load();
-        if (!prefs.Connected)
-        {
-            return;
-        }
-
-        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
-        var name = await DialogService.ShowPromptAsync(
-            "Drive 同期フォルダ",
-            prefs.FolderName.Length > 0 ? prefs.FolderName : "通勤経路費",
-            "Drive 上のフォルダ名",
-            owner);
-        if (name is null)
-        {
-            return;
-        }
-
-        prefs.FolderName = name.Trim().Length > 0 ? name.Trim() : "通勤経路費";
-        prefs.FolderId = "";
-        DriveSyncPreferencesStore.Save(prefs);
-        RefreshDriveSyncUi();
-        UpdateStatusText.Text = "同期フォルダを設定しました。";
-    }
-
-    private async void DriveSyncNow_Click(object? sender, RoutedEventArgs e)
-    {
-        DriveSyncNowButton.IsEnabled = false;
-        UpdateStatusText.Text = "同期しています…";
-        try
-        {
-            UpdateStatusText.Text = await CloudSyncSettingsHelper.RunSyncNowAsync();
-            RefreshDriveSyncUi();
-        }
-        finally
-        {
-            RefreshDriveSyncUi();
-        }
     }
 
     private async void ManualShareExport_Click(object? sender, RoutedEventArgs e)
@@ -153,7 +40,7 @@ public partial class SettingsView : UserControl
         UpdateStatusText.Text = message;
         if (success)
         {
-            await DialogService.ShowOkAsync("JSON を書き出しました", message, owner);
+            await DialogService.ShowOkAsync("JSON をダウンロード", message, owner);
         }
     }
 
@@ -162,29 +49,6 @@ public partial class SettingsView : UserControl
         var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
         var (success, message) = await ManualDataShareHelper.TryImportAsync(owner);
         UpdateStatusText.Text = message;
-        if (success)
-        {
-            RefreshDriveSyncUi();
-        }
-    }
-
-    private async void RestoreLocal_Click(object? sender, RoutedEventArgs e)
-    {
-        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
-        var ok = await DialogService.ShowConfirmAsync(
-            "ローカルデータに戻す",
-            "同期前に退避したローカルデータに戻します。現在のデータは上書きされます。よろしいですか？",
-            "戻す",
-            "キャンセル",
-            owner);
-        if (!ok)
-        {
-            return;
-        }
-
-        var (success, message) = await CloudSyncSettingsHelper.TryRestoreLocalAsync();
-        UpdateStatusText.Text = message;
-        RefreshDriveSyncUi();
     }
 
     private async void CheckUpdate_Click(object? sender, RoutedEventArgs e)

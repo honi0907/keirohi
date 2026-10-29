@@ -22,7 +22,7 @@ public static class ManualDataShareHelper
 
         var file = await storage.SaveFilePickerAsync(new FilePickerSaveOptions
         {
-            Title = "JSON を保存",
+            Title = "JSON をダウンロード",
             SuggestedFileName = DefaultExportFileName(),
             FileTypeChoices =
             [
@@ -61,7 +61,7 @@ public static class ManualDataShareHelper
 
         var files = await storage.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "JSON を選択",
+            Title = "JSON を読み込む",
             AllowMultiple = false,
             FileTypeFilter =
             [
