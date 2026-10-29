@@ -619,7 +619,7 @@
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.11";
+    const APP_VERSION = "1.1.12";
     let shareExportInFlight = false;
     const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
     const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
@@ -756,15 +756,10 @@
 
     function buildShareExportPayload(json, filename) {
       const isAndroid = /Android/i.test(navigator.userAgent);
-      /** title/text と files の同時指定は Android で DataError になりやすい。拡張子は .json のまま */
+      /** Android: text/plain + .json が共有シートで安定。text 単体は URL コピー扱いになりやすい */
       const jsonFile = (type) => new File([json], filename, { type });
       const candidates = isAndroid
-        ? [
-            { files: [jsonFile("application/json")] },
-            { files: [jsonFile("text/plain")] },
-            ...(json.length < 900_000 ? [{ text: json }] : []),
-            { files: [jsonFile("application/octet-stream")] },
-          ]
+        ? [{ files: [jsonFile("text/plain")] }, { files: [jsonFile("application/json")] }]
         : [
             { files: [jsonFile("application/json")] },
             { files: [jsonFile("text/plain")] },
@@ -778,14 +773,6 @@
         return payload;
       }
       return candidates[0] || null;
-    }
-
-    async function copyExportJsonToClipboard(json) {
-      if (!navigator.clipboard?.writeText) {
-        return false;
-      }
-      await navigator.clipboard.writeText(json);
-      return true;
     }
 
     /** タップ直後に navigator.share を1回だけ呼ぶ */
@@ -816,16 +803,12 @@
         .then(() => {
           toast("共有しました");
         })
-        .catch(async (err) => {
+        .catch((err) => {
           if (err?.name === "AbortError") {
             return;
           }
-          if (await copyExportJsonToClipboard(json).catch(() => false)) {
-            toast("共有できなかったため JSON をクリップボードにコピーしました", "info");
-            return;
-          }
           downloadJsonFile(json, filename);
-          toast("共有できなかったためダウンロードしました（通知のファイルから共有できます）", "info");
+          toast("共有を完了できなかったためダウンロードしました", "info");
         })
         .finally(() => {
           shareExportInFlight = false;
