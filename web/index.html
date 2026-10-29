@@ -573,7 +573,7 @@
   <dialog id="dialogDataShare">
     <div class="dialog-body">
       <h3>データの共有・取り込み</h3>
-      <p class="hint" style="margin-top:0">JSON を共有シートで Drive などへ保存できます。通信は共有・取り込み時のみです。</p>
+      <p class="hint" style="margin-top:0">スマホ（Chrome 等）では「JSON を共有…」で LINE・Drive などの<strong>共有先一覧</strong>が開きます。PC ブラウザや非対応環境では JSON の<strong>ダウンロード</strong>のみになります。</p>
       <p class="hint" id="appVersionLine" style="margin-top:0"></p>
       <p class="hint" id="easyUpdateHint" style="margin-top:0"></p>
       <button type="button" id="btnCheckUpdate" style="width:100%;margin-bottom:8px">更新を確認</button>
@@ -595,7 +595,7 @@
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.8";
+    const APP_VERSION = "1.1.9";
     const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
     const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
 
@@ -716,27 +716,65 @@
       URL.revokeObjectURL(url);
     }
 
-    async function shareExportJson() {
+    function buildShareExportPayload(json, filename) {
+      const sharePayload = {
+        title: "通勤経路費データ",
+        text: "通勤経路費のバックアップ JSON",
+      };
+      const fileVariants = [
+        new File([json], filename, { type: "text/plain" }),
+        new File([json], filename, { type: "application/json" }),
+      ];
+      for (const file of fileVariants) {
+        if (typeof navigator.canShare === "function") {
+          if (navigator.canShare({ files: [file] })) {
+            return { ...sharePayload, files: [file] };
+          }
+        } else {
+          return { ...sharePayload, files: [file] };
+        }
+      }
+      if (json.length < 900_000) {
+        return { ...sharePayload, text: json };
+      }
+      return null;
+    }
+
+    /** タップ直後に navigator.share を1回だけ呼ぶ（async/await だと Android Chrome で共有シートが開かないことがある） */
+    function shareExportJson() {
       const json = JSON.stringify(buildExportBundle(), null, 2);
       const filename = exportFilename();
-      const file = new File([json], filename, { type: "application/json" });
-      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
-        try {
-          await navigator.share({
-            files: [file],
-            title: "通勤経路費データ",
-            text: "通勤経路費のバックアップ JSON",
-          });
+
+      if (!navigator.share) {
+        downloadJsonFile(json, filename);
+        toast("この環境は共有シート非対応のためダウンロードしました", "info");
+        return Promise.resolve();
+      }
+
+      const payload = buildShareExportPayload(json, filename);
+      if (!payload) {
+        downloadJsonFile(json, filename);
+        toast("データが大きいためダウンロードしました", "info");
+        return Promise.resolve();
+      }
+
+      const dialog = document.getElementById("dialogDataShare");
+      if (dialog.open) {
+        dialog.close();
+      }
+
+      return navigator
+        .share(payload)
+        .then(() => {
           toast("共有しました");
-          return;
-        } catch (err) {
+        })
+        .catch((err) => {
           if (err?.name === "AbortError") {
             return;
           }
-        }
-      }
-      downloadJsonFile(json, filename);
-      toast("JSON をダウンロードしました");
+          downloadJsonFile(json, filename);
+          toast("共有シートを開けなかったためダウンロードしました", "info");
+        });
     }
 
     function applyImportBundle(bundle) {
@@ -1553,12 +1591,12 @@
       document.getElementById("dialogDataShare").close();
     });
 
-    document.getElementById("btnShareJson").addEventListener("click", async () => {
-      try {
-        await shareExportJson();
-      } catch (err) {
-        toast(err.message || String(err), "error");
-      }
+    document.getElementById("btnShareJson").addEventListener("click", () => {
+      shareExportJson().catch((err) => {
+        if (err?.name !== "AbortError") {
+          toast(err.message || String(err), "error");
+        }
+      });
     });
 
     document.getElementById("btnImportJson").addEventListener("click", () => {
