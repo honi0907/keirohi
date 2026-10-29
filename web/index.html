@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta http-equiv="Permissions-Policy" content="web-share=(self)" />
   <meta name="theme-color" content="#0078d4" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -405,6 +406,27 @@
     #updateBannerText { flex: 1; min-width: 0; font-size: 13px; }
 
     #updateBanner button { font-size: 12px; padding: 6px 10px; }
+
+    .sheet-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .sheet-overlay[hidden] { display: none !important; }
+
+    .sheet-panel {
+      width: min(var(--phone-w), 100%);
+      max-height: min(92dvh, 720px);
+      overflow: auto;
+      background: var(--surface);
+      border-radius: 12px 12px 0 0;
+      box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+    }
   </style>
 </head>
 <body>
@@ -570,9 +592,10 @@
     </div>
   </dialog>
 
-  <dialog id="dialogDataShare">
+  <div id="dataShareOverlay" class="sheet-overlay" hidden>
+    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="dataShareTitle">
     <div class="dialog-body">
-      <h3>データの共有・取り込み</h3>
+      <h3 id="dataShareTitle">データの共有・取り込み</h3>
       <p class="hint" style="margin-top:0">スマホ（Chrome 等）では「JSON を共有…」で LINE・Drive などの<strong>共有先一覧</strong>が開きます。PC ブラウザや非対応環境では JSON の<strong>ダウンロード</strong>のみになります。</p>
       <p class="hint" id="appVersionLine" style="margin-top:0"></p>
       <p class="hint" id="easyUpdateHint" style="margin-top:0"></p>
@@ -590,12 +613,14 @@
       <button type="button" id="btnRestoreLocal" style="width:100%;margin-top:8px" disabled>取り込み前のデータに戻す</button>
       <button type="button" id="btnCloseDataShare" style="width:100%;margin-top:12px">閉じる</button>
     </div>
-  </dialog>
+    </div>
+  </div>
 
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.9";
+    const APP_VERSION = "1.1.10";
+    let shareExportInFlight = false;
     const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
     const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
 
@@ -716,32 +741,57 @@
       URL.revokeObjectURL(url);
     }
 
-    function buildShareExportPayload(json, filename) {
-      const sharePayload = {
-        title: "通勤経路費データ",
-        text: "通勤経路費のバックアップ JSON",
-      };
-      const fileVariants = [
-        new File([json], filename, { type: "text/plain" }),
-        new File([json], filename, { type: "application/json" }),
-      ];
-      for (const file of fileVariants) {
-        if (typeof navigator.canShare === "function") {
-          if (navigator.canShare({ files: [file] })) {
-            return { ...sharePayload, files: [file] };
-          }
-        } else {
-          return { ...sharePayload, files: [file] };
-        }
-      }
-      if (json.length < 900_000) {
-        return { ...sharePayload, text: json };
-      }
-      return null;
+    function openDataSharePanel() {
+      renderDataShareUi();
+      const overlay = document.getElementById("dataShareOverlay");
+      overlay.hidden = false;
+      overlay.setAttribute("aria-hidden", "false");
     }
 
-    /** タップ直後に navigator.share を1回だけ呼ぶ（async/await だと Android Chrome で共有シートが開かないことがある） */
+    function closeDataSharePanel() {
+      const overlay = document.getElementById("dataShareOverlay");
+      overlay.hidden = true;
+      overlay.setAttribute("aria-hidden", "true");
+    }
+
+    function buildShareExportPayload(json, filename) {
+      const isAndroid = /Android/i.test(navigator.userAgent);
+      const txtName = filename.replace(/\.json$/i, ".txt");
+      /** title/text と files の同時指定は Android で DataError になりやすい */
+      const candidates = isAndroid
+        ? [
+            { files: [new File([json], txtName, { type: "text/plain" })] },
+            ...(json.length < 900_000 ? [{ text: json }] : []),
+            { files: [new File([json], filename, { type: "application/octet-stream" })] },
+          ]
+        : [
+            { files: [new File([json], filename, { type: "text/plain" })] },
+            ...(json.length < 900_000 ? [{ title: "通勤経路費データ", text: json }] : []),
+          ];
+
+      for (const payload of candidates) {
+        if (typeof navigator.canShare === "function" && !navigator.canShare(payload)) {
+          continue;
+        }
+        return payload;
+      }
+      return candidates[0] || null;
+    }
+
+    async function copyExportJsonToClipboard(json) {
+      if (!navigator.clipboard?.writeText) {
+        return false;
+      }
+      await navigator.clipboard.writeText(json);
+      return true;
+    }
+
+    /** タップ直後に navigator.share を1回だけ呼ぶ */
     function shareExportJson() {
+      if (shareExportInFlight) {
+        return Promise.resolve();
+      }
+
       const json = JSON.stringify(buildExportBundle(), null, 2);
       const filename = exportFilename();
 
@@ -758,22 +808,25 @@
         return Promise.resolve();
       }
 
-      const dialog = document.getElementById("dialogDataShare");
-      if (dialog.open) {
-        dialog.close();
-      }
-
+      shareExportInFlight = true;
       return navigator
         .share(payload)
         .then(() => {
           toast("共有しました");
         })
-        .catch((err) => {
+        .catch(async (err) => {
           if (err?.name === "AbortError") {
             return;
           }
+          if (await copyExportJsonToClipboard(json).catch(() => false)) {
+            toast("共有できなかったため JSON をクリップボードにコピーしました", "info");
+            return;
+          }
           downloadJsonFile(json, filename);
-          toast("共有シートを開けなかったためダウンロードしました", "info");
+          toast("共有できなかったためダウンロードしました（通知のファイルから共有できます）", "info");
+        })
+        .finally(() => {
+          shareExportInFlight = false;
         });
     }
 
@@ -1566,8 +1619,13 @@
     }
 
     document.getElementById("btnOpenDataShare").addEventListener("click", () => {
-      renderDataShareUi();
-      document.getElementById("dialogDataShare").showModal();
+      openDataSharePanel();
+    });
+
+    document.getElementById("dataShareOverlay").addEventListener("click", (event) => {
+      if (event.target.id === "dataShareOverlay") {
+        closeDataSharePanel();
+      }
     });
 
     document.getElementById("btnCheckUpdate").addEventListener("click", () => {
@@ -1588,7 +1646,7 @@
     });
 
     document.getElementById("btnCloseDataShare").addEventListener("click", () => {
-      document.getElementById("dialogDataShare").close();
+      closeDataSharePanel();
     });
 
     document.getElementById("btnShareJson").addEventListener("click", () => {
@@ -1620,7 +1678,7 @@
         applyImportBundle(bundle);
         renderDataShareUi();
         toast("JSON を取り込みました");
-        document.getElementById("dialogDataShare").close();
+        closeDataSharePanel();
       } catch (err) {
         toast(err.message || "取り込みに失敗しました", "error");
       }

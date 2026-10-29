@@ -1,4 +1,4 @@
-const CACHE_NAME = "keirohi-mobile-web-v4";
+const CACHE_NAME = "keirohi-mobile-web-v5";
 
 const PRECACHE_URLS = [
   "./",
