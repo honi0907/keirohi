@@ -42,6 +42,7 @@
     }
 
     .phone {
+      position: relative;
       width: 100%;
       max-width: var(--phone-w);
       height: 100dvh;
@@ -408,9 +409,9 @@
     #updateBanner button { font-size: 12px; padding: 6px 10px; }
 
     .sheet-overlay {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      z-index: 2000;
+      z-index: 40;
       background: rgba(0, 0, 0, 0.4);
       display: flex;
       align-items: flex-end;
@@ -571,6 +572,30 @@
         <span>登録</span>
       </button>
     </nav>
+
+    <div id="dataShareOverlay" class="sheet-overlay" hidden aria-hidden="true">
+      <div class="sheet-panel" role="dialog" aria-labelledby="dataShareTitle">
+        <div class="dialog-body">
+          <h3 id="dataShareTitle">データの共有・取り込み</h3>
+          <p class="hint" style="margin-top:0">スマホ（Chrome）の共有シートでは <strong>.txt 名</strong>で送ります（中身は JSON）。Drive 保存後も取り込み可能です。PC や非対応時は <strong>.json ダウンロード</strong>のみです。</p>
+          <p class="hint" id="appVersionLine" style="margin-top:0"></p>
+          <p class="hint" id="easyUpdateHint" style="margin-top:0"></p>
+          <button type="button" id="btnCheckUpdate" style="width:100%;margin-bottom:8px">更新を確認</button>
+          <button type="button" class="primary" id="btnShareJson" style="width:100%">JSON を共有…</button>
+          <button type="button" id="btnImportJson" style="width:100%;margin-top:8px">JSON を取り込む…</button>
+          <input type="file" id="importFileInput" accept=".json,application/json,.txt,text/plain" hidden />
+          <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
+          <h4 style="margin:0 0 8px;font-size:14px">ローカルデータ</h4>
+          <p class="hint" style="margin-top:0">取り込みの直前に、この端末内のデータを自動退避します。</p>
+          <div class="data-status-line">
+            <strong>取り込み前バックアップ</strong>
+            <span id="localBackupStatusText">なし</span>
+          </div>
+          <button type="button" id="btnRestoreLocal" style="width:100%;margin-top:8px" disabled>取り込み前のデータに戻す</button>
+          <button type="button" id="btnCloseDataShare" style="width:100%;margin-top:12px">閉じる</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <dialog id="dialogHistory">
@@ -592,34 +617,11 @@
     </div>
   </dialog>
 
-  <div id="dataShareOverlay" class="sheet-overlay" hidden>
-    <div class="sheet-panel" role="dialog" aria-modal="true" aria-labelledby="dataShareTitle">
-    <div class="dialog-body">
-      <h3 id="dataShareTitle">データの共有・取り込み</h3>
-      <p class="hint" style="margin-top:0">スマホ（Chrome）の共有シートでは <strong>.txt 名</strong>で送ります（中身は JSON）。Drive 保存後も取り込み可能です。PC や非対応時は <strong>.json ダウンロード</strong>のみです。</p>
-      <p class="hint" id="appVersionLine" style="margin-top:0"></p>
-      <p class="hint" id="easyUpdateHint" style="margin-top:0"></p>
-      <button type="button" id="btnCheckUpdate" style="width:100%;margin-bottom:8px">更新を確認</button>
-      <button type="button" class="primary" id="btnShareJson" style="width:100%">JSON を共有…</button>
-      <button type="button" id="btnImportJson" style="width:100%;margin-top:8px">JSON を取り込む…</button>
-      <input type="file" id="importFileInput" accept=".json,application/json,.txt,text/plain" hidden />
-      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
-      <h4 style="margin:0 0 8px;font-size:14px">ローカルデータ</h4>
-      <p class="hint" style="margin-top:0">取り込みの直前に、この端末内のデータを自動退避します。</p>
-      <div class="data-status-line">
-        <strong>取り込み前バックアップ</strong>
-        <span id="localBackupStatusText">なし</span>
-      </div>
-      <button type="button" id="btnRestoreLocal" style="width:100%;margin-top:8px" disabled>取り込み前のデータに戻す</button>
-      <button type="button" id="btnCloseDataShare" style="width:100%;margin-top:12px">閉じる</button>
-    </div>
-    </div>
-  </div>
-
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.14";
+    const APP_VERSION = "1.1.15";
+    let dataShareHistoryActive = false;
     /** @type {ServiceWorkerRegistration | undefined} */
     let swRegistration;
     let shareExportInFlight = false;
@@ -743,17 +745,40 @@
       URL.revokeObjectURL(url);
     }
 
+    function releaseLayoutAfterSheet() {
+      const phone = document.querySelector(".phone");
+      if (phone) {
+        phone.style.removeProperty("height");
+        phone.style.removeProperty("min-height");
+      }
+      window.scrollTo(0, 0);
+    }
+
     function openDataSharePanel() {
       renderDataShareUi();
       const overlay = document.getElementById("dataShareOverlay");
       overlay.hidden = false;
       overlay.setAttribute("aria-hidden", "false");
+      if (!dataShareHistoryActive) {
+        history.pushState({ keirohiDataShare: true }, "", location.href);
+        dataShareHistoryActive = true;
+      }
     }
 
-    function closeDataSharePanel() {
+    function closeDataSharePanel({ fromHistory = false } = {}) {
       const overlay = document.getElementById("dataShareOverlay");
+      if (overlay.hidden) {
+        return;
+      }
       overlay.hidden = true;
       overlay.setAttribute("aria-hidden", "true");
+      releaseLayoutAfterSheet();
+      if (dataShareHistoryActive) {
+        dataShareHistoryActive = false;
+        if (!fromHistory) {
+          history.back();
+        }
+      }
     }
 
     function buildShareExportPayload(json, filename) {
@@ -820,6 +845,7 @@
         })
         .finally(() => {
           shareExportInFlight = false;
+          releaseLayoutAfterSheet();
         });
     }
 
@@ -1638,6 +1664,10 @@
       if (event.target.id === "dataShareOverlay") {
         closeDataSharePanel();
       }
+    });
+
+    window.addEventListener("popstate", () => {
+      closeDataSharePanel({ fromHistory: true });
     });
 
     document.getElementById("btnCheckUpdate").addEventListener("click", () => {

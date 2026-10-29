@@ -1,4 +1,4 @@
-const CACHE_NAME = "keirohi-mobile-web-v9";
+const CACHE_NAME = "keirohi-mobile-web-v10";
 
 const PRECACHE_URLS = [
   "./manifest.webmanifest",
