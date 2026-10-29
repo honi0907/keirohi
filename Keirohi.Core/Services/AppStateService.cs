@@ -72,6 +72,13 @@ public sealed class AppStateService
         RefreshDataLastWrittenFromDisk();
     }
 
+    /// <summary>ディスク上の JSON を再読み込みし、UI へ変更を通知（同期前バックアップからの復元後など）。</summary>
+    public void ReloadAfterExternalRestore()
+    {
+        Load();
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
     public FareIndexService GetFareIndex() => FareIndexService.BuildFromMemory(fareMemoryRows);
 
     public void RememberFare(string departure, string arrival, int amount)

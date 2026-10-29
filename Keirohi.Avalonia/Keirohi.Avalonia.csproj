@@ -43,6 +43,8 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.3.10" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.10" />
     <PackageReference Include="Avalonia.Fonts.Inter" Version="11.3.10" />
+    <PackageReference Include="Google.Apis.Auth" Version="1.70.0" />
+    <PackageReference Include="Google.Apis.Drive.v3" Version="1.70.0.3834" />
     <PackageReference Include="PDFsharp" Version="6.2.0" />
     <PackageReference Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.3">
       <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>

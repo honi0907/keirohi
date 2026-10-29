@@ -3,6 +3,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Keirohi_App.Models;
 using Keirohi_App.Services;
 using Keirohi.Avalonia.Helpers;
@@ -14,6 +15,9 @@ namespace Keirohi.Avalonia.Controls;
 
 public partial class RegistrationPreviewPanel : UserControl
 {
+    private static readonly IBrush BatchDestinationAttentionBackground =
+        new SolidColorBrush(Color.Parse("#FFFFF4CE"));
+
     public ObservableCollection<TripEntryItem> Items { get; } = [];
 
     private bool suppressSetSelectionChange;
@@ -195,6 +199,19 @@ public partial class RegistrationPreviewPanel : UserControl
             : "";
 
         UpdateEntryLimitWarning(count);
+        UpdateBatchDestinationButtonHighlight();
+    }
+
+    private void UpdateBatchDestinationButtonHighlight()
+    {
+        var hasEmpty = AppHost.State.Entries.Any(e => string.IsNullOrWhiteSpace(e.Destination));
+        if (hasEmpty)
+        {
+            BatchDestinationButton.Background = BatchDestinationAttentionBackground;
+            return;
+        }
+
+        BatchDestinationButton.ClearValue(Button.BackgroundProperty);
     }
 
     private void UpdateEntryLimitWarning(int count)

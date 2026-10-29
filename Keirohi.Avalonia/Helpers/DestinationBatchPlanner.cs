@@ -10,7 +10,8 @@ public sealed record DestinationLegDraft(
     TransportMode Mode,
     int Count,
     IReadOnlyList<string> EntryIds,
-    string SuggestedDestination);
+    string SuggestedDestination,
+    bool IncludesMissingDestination);
 
 public sealed record DestinationDateSection(
     string Date,
@@ -58,6 +59,7 @@ public static class DestinationBatchPlanner
                     {
                         var ids = idsByRoute[key];
                         var prefilled = ResolvePrefilledDestination(ids, entryById, history, key);
+                        var missing = AnyEntryMissingDestination(ids, entryById);
                         return new DestinationLegDraft(
                             g.Key,
                             key.Departure,
@@ -65,7 +67,8 @@ public static class DestinationBatchPlanner
                             key.Mode,
                             ids.Count,
                             ids,
-                            prefilled);
+                            prefilled,
+                            missing);
                     })
                     .ToList();
                 return new DestinationDateSection(g.Key, legs);
@@ -94,6 +97,26 @@ public static class DestinationBatchPlanner
     public static bool IsReverseRoute(string depA, string arrA, string depB, string arrB) =>
         string.Equals(depA, arrB, StringComparison.Ordinal) &&
         string.Equals(arrA, depB, StringComparison.Ordinal);
+
+    private static bool AnyEntryMissingDestination(
+        IReadOnlyList<string> entryIds,
+        IReadOnlyDictionary<string, TripEntry> entryById)
+    {
+        foreach (var id in entryIds)
+        {
+            if (!entryById.TryGetValue(id, out var entry))
+            {
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(entry.Destination))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private static string ResolvePrefilledDestination(
         IReadOnlyList<string> entryIds,

@@ -28,6 +28,24 @@
       <Button Content="保存" Click="Save_Click" Classes="accent"/>
       <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">
         <StackPanel Spacing="8">
+          <TextBlock FontWeight="SemiBold" Text="Google Drive 同期"/>
+          <TextBlock Opacity="0.75" Text="PC のデータ（明細・パターン・設定・運賃履歴）を Drive フォルダと同期します。初回は docs/google-drive-setup.md の手順で OAuth JSON を配置してください。" TextWrapping="Wrap"/>
+          <TextBlock x:Name="DriveSyncStatusText" Opacity="0.85" TextWrapping="Wrap"/>
+          <TextBox x:Name="DriveFolderBox" IsReadOnly="True" Watermark="同期フォルダ（未設定）"/>
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button x:Name="DriveConnectButton" Content="Google でログイン" MinHeight="36" Click="DriveConnect_Click"/>
+            <Button x:Name="DrivePickFolderButton" Content="フォルダを選ぶ" MinHeight="36" Click="DrivePickFolder_Click"/>
+          </StackPanel>
+          <Button x:Name="DriveSyncNowButton" Content="今すぐ同期" MinHeight="36" Classes="accent" Click="DriveSyncNow_Click"/>
+          <Button x:Name="DriveDisconnectButton" Content="接続を解除" MinHeight="36" Click="DriveDisconnect_Click"/>
+          <TextBlock FontWeight="SemiBold" Margin="0,8,0,0" Text="ローカルデータ"/>
+          <TextBlock x:Name="LocalBackupStatusText" Opacity="0.75" TextWrapping="Wrap"/>
+          <Button x:Name="RestoreLocalButton" Content="同期前のローカルデータに戻す" MinHeight="36" Click="RestoreLocal_Click"/>
+          <TextBlock Opacity="0.65" FontSize="11" Text="「今すぐ同期」の直前に自動で退避したデータに戻します。" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+      <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">
+        <StackPanel Spacing="8">
           <TextBlock FontWeight="SemiBold" Text="オンライン更新"/>
           <TextBlock x:Name="VersionText" Opacity="0.8" TextWrapping="Wrap"/>
           <Button Content="更新履歴…" HorizontalAlignment="Left" MinHeight="36" Click="ReleaseNotesHistory_Click"/>

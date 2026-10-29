@@ -87,7 +87,7 @@
         <Border Grid.Row="2" Padding="8" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}" Margin="0,0,0,8">
           <StackPanel Orientation="Horizontal" Spacing="8">
             <Button Content="編集" Click="EditSelected_Click"/>
-            <Button Content="目的地をまとめて" Click="BatchDestination_Click"/>
+            <Button x:Name="BatchDestinationButton" Content="目的地をまとめて" Click="BatchDestination_Click"/>
             <Button Content="削除" Click="DeleteSelected_Click"/>
             <Button Content="すべて削除" Click="ClearAll_Click"/>
           </StackPanel>

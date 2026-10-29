@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0078d4" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="通勤経路費" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <title>通勤経路費（モバイル）</title>
+  <style>
+    :root {
+      --bg: #f5f5f5;
+      --surface: #fff;
+      --border: #e0e0e0;
+      --text: #1a1a1a;
+      --muted: #666;
+      --accent: #0078d4;
+      --accent-hover: #106ebe;
+      --danger: #c42b1c;
+      --warn-bg: #fff3f2;
+      --warn-border: #0078d4;
+      --radius: 8px;
+      --phone-w: 430px;
+      --tab-h: 56px;
+      --safe-b: env(safe-area-inset-bottom, 0px);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      font-family: "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+      background: #ddd;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+    }
+
+    .phone {
+      width: 100%;
+      max-width: var(--phone-w);
+      height: 100dvh;
+      max-height: 100dvh;
+      min-height: 100dvh;
+      overflow: hidden;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 24px rgba(0,0,0,.12);
+    }
+
+    header.app-header {
+      flex-shrink: 0;
+      padding: 12px 16px 10px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .header-titles { min-width: 0; flex: 1; }
+
+    header.app-header h1 {
+      margin: 0;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    header.app-header p {
+      margin: 4px 0 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .sync-header-btn {
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 6px 10px;
+      min-width: 52px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      font-size: 10px;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .sync-header-btn .sync-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .data-status-line {
+      font-size: 13px;
+      margin: 0 0 12px;
+      padding: 10px 12px;
+      border-radius: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      line-height: 1.45;
+    }
+
+    .data-status-line strong { display: block; font-size: 12px; margin-bottom: 4px; }
+
+    main.app-main {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 12px 16px 16px;
+    }
+
+    .panel.active { display: block; }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.45;
+      margin: 0 0 10px;
+    }
+
+    label.field-label {
+      display: block;
+      font-size: 12px;
+      margin: 8px 0 4px;
+      color: var(--muted);
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 16px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--surface);
+    }
+
+    textarea { min-height: 64px; resize: vertical; }
+
+    .row-2 {
+      display: grid;
+      grid-template-columns: 112px 1fr;
+      gap: 8px;
+      align-items: start;
+    }
+
+    button {
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      cursor: pointer;
+    }
+
+    button:active { opacity: 0.85; }
+
+    button.primary {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+      font-weight: 600;
+    }
+
+    button.primary:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    button.linkish {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      padding: 8px 0;
+      text-align: left;
+    }
+
+    button.danger { color: var(--danger); border-color: #f0c8c4; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn-row.stretch button { flex: 1; min-width: 0; }
+
+    .banner {
+      padding: 10px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .banner.error {
+      background: #ffe8e8;
+      border: 1px solid var(--danger);
+      color: #8a1a1a;
+    }
+
+    .banner.info {
+      background: var(--warn-bg);
+      border: 1px solid var(--warn-border);
+    }
+
+    .banner.success {
+      background: #e8f5e9;
+      border: 1px solid #4caf50;
+    }
+
+    nav.tabs {
+      flex-shrink: 0;
+      z-index: 30;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      height: calc(var(--tab-h) + var(--safe-b));
+      padding-bottom: var(--safe-b);
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    nav.tabs button {
+      border: none;
+      border-radius: 0;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+      color: var(--muted);
+      padding: 6px;
+    }
+
+    nav.tabs button.active {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    nav.tabs button .icon { font-size: 18px; line-height: 1; }
+
+    .pattern-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .pattern-list li {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      cursor: pointer;
+      background: var(--surface);
+    }
+
+    .pattern-list li.selected {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+    .pattern-list li .title { font-weight: 600; font-size: 13px; }
+    .pattern-list li .detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .leg-block {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      margin-bottom: 8px;
+      background: #fafafa;
+    }
+
+    .leg-block header {
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .entry-list { list-style: none; margin: 0; padding: 0; }
+
+    .entry-card {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin-bottom: 6px;
+      background: var(--surface);
+      cursor: pointer;
+    }
+
+    .entry-card.selected {
+      border-color: var(--accent);
+      box-shadow: inset 0 0 0 1px var(--accent);
+    }
+
+    .entry-card .line1 {
+      display: flex;
+      justify-content: space-between;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .entry-card .line2 {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .summary {
+      font-weight: 600;
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+
+    .set-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .set-toolbar button { font-size: 12px; padding: 6px 10px; }
+
+    dialog {
+      border: none;
+      border-radius: var(--radius);
+      padding: 0;
+      max-width: calc(var(--phone-w) - 32px);
+      width: 100%;
+    }
+
+    dialog::backdrop { background: rgba(0,0,0,.4); }
+
+    .dialog-body { padding: 16px; }
+
+    .dialog-body h3 { margin: 0 0 12px; font-size: 16px; }
+
+    .history-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      margin-bottom: 6px;
+    }
+
+    #updateBanner {
+      margin: 0;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    #updateBanner[hidden] { display: none !important; }
+
+    #updateBannerText { flex: 1; min-width: 0; font-size: 13px; }
+
+    #updateBanner button { font-size: 12px; padding: 6px 10px; }
+  </style>
+</head>
+<body>
+  <div class="phone">
+    <header class="app-header">
+      <div class="header-row">
+        <div class="header-titles">
+          <h1>通勤経路費</h1>
+          <p id="headerSubtitle">オフライン利用 · データはこの端末のブラウザ内</p>
+        </div>
+        <button type="button" class="sync-header-btn" id="btnOpenDataShare" aria-label="データの共有">
+          <span class="sync-icon" aria-hidden="true">↗</span>
+          <span>共有</span>
+        </button>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <div id="updateBanner" class="banner info" hidden>
+        <span id="updateBannerText"></span>
+        <button type="button" class="primary" id="btnApplyUpdate">再読み込み</button>
+        <button type="button" id="btnDismissUpdate">後で</button>
+      </div>
+      <div id="globalBanner" hidden></div>
+
+      <!-- 入力 -->
+      <section id="panel-input" class="panel active" aria-label="入力">
+        <div id="inputLimitBanner" class="banner error" hidden></div>
+        <div class="card">
+          <h2>区間</h2>
+          <p class="hint">定例ルートは「パターン」タブから一括登録できます。</p>
+          <label class="field-label">日付</label>
+          <input type="date" id="inputDate" />
+          <label class="field-label">目的地（精算用）</label>
+          <input type="text" id="inputDestination" placeholder="目的地" autocomplete="off" />
+          <label class="field-label">出発</label>
+          <input type="text" id="inputDeparture" placeholder="出発" autocomplete="off" />
+          <label class="field-label">到着</label>
+          <input type="text" id="inputArrival" placeholder="到着" autocomplete="off" />
+          <button type="button" class="linkish" id="btnRecallHistory">履歴から入力…</button>
+          <div class="row-2" style="margin-top:8px">
+            <div>
+              <label class="field-label">区分</label>
+              <select id="inputMode">
+                <option value="train">電車</option>
+                <option value="bus">バス等</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">金額（円）</label>
+              <input type="number" id="inputAmount" min="0" placeholder="金額" inputmode="numeric" />
+            </div>
+          </div>
+          <p class="hint" id="fareHint"></p>
+          <a href="https://transit.yahoo.co.jp/" target="_blank" rel="noopener noreferrer">Yahoo!乗換案内で調べる（APIキー不要）</a>
+          <label class="field-label">備考</label>
+          <textarea id="inputNote" placeholder="備考"></textarea>
+        </div>
+        <button type="button" class="primary" id="btnRegisterInput" style="width:100%">明細に登録</button>
+      </section>
+
+      <!-- パターン -->
+      <section id="panel-patterns" class="panel" aria-label="パターン">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <h2 style="margin:0">パターン一覧</h2>
+            <div class="btn-row" style="margin:0">
+              <button type="button" id="btnNewPattern">新規</button>
+              <button type="button" class="danger" id="btnDeletePattern">削除</button>
+            </div>
+          </div>
+          <p class="hint" id="patternCountText">0 件</p>
+          <ul class="pattern-list" id="patternList"></ul>
+        </div>
+
+        <div class="card" id="patternEditorCard">
+          <h2>編集</h2>
+          <label class="field-label">パターン名</label>
+          <input type="text" id="patternName" placeholder="例: 自宅→センター" />
+          <p class="hint">区間（上から順に登録）。運賃 0 または空のときは履歴から推定します。</p>
+          <div id="legsContainer"></div>
+          <div class="btn-row stretch">
+            <button type="button" id="btnAddLeg">区間を追加</button>
+            <button type="button" id="btnReversePattern">逆パターンにする</button>
+          </div>
+          <button type="button" class="primary" id="btnSavePattern" style="width:100%;margin-top:10px">パターンを保存</button>
+        </div>
+
+        <div class="card">
+          <h2>明細へ一括登録</h2>
+          <p class="hint">選択中のパターンを日付・目的地付きで明細に展開します。</p>
+          <label class="field-label">日付</label>
+          <input type="date" id="applyDate" />
+          <label class="field-label">目的地</label>
+          <p class="hint" style="margin-top:0">精算用。空欄ならパターン名を使います。</p>
+          <input type="text" id="applyDestination" placeholder="例: 自宅→センター" />
+          <button type="button" class="primary" id="btnApplyPattern" style="width:100%;margin-top:12px">明細に登録</button>
+        </div>
+      </section>
+
+      <!-- 登録一覧 -->
+      <section id="panel-entries" class="panel" aria-label="登録一覧">
+        <div class="card">
+          <h2>保存セット</h2>
+          <label class="field-label">セット</label>
+          <select id="entrySetSelect"></select>
+          <div class="set-toolbar">
+            <button type="button" id="btnNewSet">新規セット</button>
+            <button type="button" id="btnRenameSet">名前変更</button>
+            <button type="button" class="danger" id="btnDeleteSet">削除</button>
+          </div>
+        </div>
+
+        <p class="summary" id="entriesSummary">0 件 / 合計 ¥0</p>
+        <div id="entryLimitBanner" class="banner info" hidden></div>
+        <div id="dateOrderBanner" class="banner error" hidden></div>
+
+        <div class="card">
+          <div class="btn-row">
+            <button type="button" id="btnEditEntry">編集</button>
+            <button type="button" id="btnBatchDestination">目的地をまとめて</button>
+            <button type="button" class="danger" id="btnDeleteEntry">削除</button>
+            <button type="button" class="danger" id="btnClearAll">すべて削除</button>
+          </div>
+        </div>
+
+        <ul class="entry-list" id="entryList"></ul>
+      </section>
+    </main>
+
+    <nav class="tabs" aria-label="メイン">
+      <button type="button" data-tab="input" class="active">
+        <span class="icon">✎</span>
+        <span>入力</span>
+      </button>
+      <button type="button" data-tab="patterns">
+        <span class="icon">☰</span>
+        <span>パターン</span>
+      </button>
+      <button type="button" data-tab="entries">
+        <span class="icon">📋</span>
+        <span>登録</span>
+      </button>
+    </nav>
+  </div>
+
+  <dialog id="dialogHistory">
+    <div class="dialog-body">
+      <h3>履歴から入力</h3>
+      <div id="historyList"></div>
+      <button type="button" id="btnCloseHistory" style="width:100%;margin-top:8px">閉じる</button>
+    </div>
+  </dialog>
+
+  <dialog id="dialogPrompt">
+    <div class="dialog-body">
+      <h3 id="promptTitle">入力</h3>
+      <input type="text" id="promptInput" />
+      <div class="btn-row stretch" style="margin-top:12px">
+        <button type="button" id="btnPromptCancel">キャンセル</button>
+        <button type="button" class="primary" id="btnPromptOk">OK</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="dialogDataShare">
+    <div class="dialog-body">
+      <h3>データの共有・取り込み</h3>
+      <p class="hint" style="margin-top:0">JSON を共有シートで Drive などへ保存できます。通信は共有・取り込み時のみです。</p>
+      <p class="hint" id="appVersionLine" style="margin-top:0"></p>
+      <p class="hint" id="easyUpdateHint" style="margin-top:0"></p>
+      <button type="button" id="btnCheckUpdate" style="width:100%;margin-bottom:8px">更新を確認</button>
+      <button type="button" class="primary" id="btnShareJson" style="width:100%">JSON を共有…</button>
+      <button type="button" id="btnImportJson" style="width:100%;margin-top:8px">JSON を取り込む…</button>
+      <input type="file" id="importFileInput" accept=".json,application/json" hidden />
+      <hr style="border:none;border-top:1px solid var(--border);margin:16px 0" />
+      <h4 style="margin:0 0 8px;font-size:14px">ローカルデータ</h4>
+      <p class="hint" style="margin-top:0">取り込みの直前に、この端末内のデータを自動退避します。</p>
+      <div class="data-status-line">
+        <strong>取り込み前バックアップ</strong>
+        <span id="localBackupStatusText">なし</span>
+      </div>
+      <button type="button" id="btnRestoreLocal" style="width:100%;margin-top:8px" disabled>取り込み前のデータに戻す</button>
+      <button type="button" id="btnCloseDataShare" style="width:100%;margin-top:12px">閉じる</button>
+    </div>
+  </dialog>
+
+  <script>
+    const STORAGE_KEY = "keirohi-mobile-prototype-v1";
+    const MAX_ENTRIES = 54;
+    const APP_VERSION = "1.1.8";
+    const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
+    const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
+
+    const uid = () => crypto.randomUUID();
+
+    function defaultState() {
+      const setId = uid();
+      return {
+        patterns: [
+          {
+            id: uid(),
+            name: "自宅→センター",
+            listColor: null,
+            legs: [
+              { departure: "自宅最寄り", arrival: "センター前", mode: "train", note: "", amount: 280 },
+              { departure: "センター前", arrival: "本社", mode: "train", note: "", amount: 0 },
+            ],
+          },
+        ],
+        selectedPatternId: null,
+        fareMemory: [
+          { departure: "自宅最寄り", arrival: "センター前", amount: 280 },
+          { departure: "センター前", arrival: "本社", amount: 190 },
+          { departure: "東京", arrival: "新宿", amount: 200 },
+        ],
+        store: {
+          activeSetId: setId,
+          sets: [
+            {
+              id: setId,
+              name: "2026年3月分",
+              nameManuallySet: true,
+              entries: [
+                {
+                  id: uid(),
+                  date: todayIso(),
+                  destination: "本社",
+                  departure: "自宅最寄り",
+                  arrival: "本社",
+                  note: "",
+                  amount: 470,
+                  mode: "train",
+                },
+              ],
+            },
+          ],
+        },
+      };
+    }
+
+    function todayIso() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return defaultState();
+        const parsed = JSON.parse(raw);
+        if (!parsed.store?.sets?.length) return defaultState();
+        return parsed;
+      } catch {
+        return defaultState();
+      }
+    }
+
+    let state = loadState();
+    if (!state.lastModified) {
+      state.lastModified = new Date().toISOString();
+    }
+
+    function saveState() {
+      state.lastModified = new Date().toISOString();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function buildExportBundle() {
+      return {
+        formatVersion: 1,
+        exportedAt: new Date().toISOString(),
+        app: "keirohi-mobile-web",
+        data: {
+          entrySets: {
+            activeSetId: state.store.activeSetId,
+            autoNameLegacyUnlockApplied: false,
+            sets: state.store.sets,
+          },
+          patterns: state.patterns,
+          fareMemory: state.fareMemory.map((r) => ({
+            departure: r.departure,
+            arrival: r.arrival,
+            amount: r.amount,
+          })),
+          selectedPatternId: state.selectedPatternId,
+        },
+      };
+    }
+
+    function exportFilename() {
+      const d = new Date();
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `keirohi-${y}${m}${day}.json`;
+    }
+
+    function downloadJsonFile(json, filename) {
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    async function shareExportJson() {
+      const json = JSON.stringify(buildExportBundle(), null, 2);
+      const filename = exportFilename();
+      const file = new File([json], filename, { type: "application/json" });
+      if (navigator.share && (!navigator.canShare || navigator.canShare({ files: [file] }))) {
+        try {
+          await navigator.share({
+            files: [file],
+            title: "通勤経路費データ",
+            text: "通勤経路費のバックアップ JSON",
+          });
+          toast("共有しました");
+          return;
+        } catch (err) {
+          if (err?.name === "AbortError") {
+            return;
+          }
+        }
+      }
+      downloadJsonFile(json, filename);
+      toast("JSON をダウンロードしました");
+    }
+
+    function applyImportBundle(bundle) {
+      if (!bundle || bundle.formatVersion !== 1 || !bundle.data) {
+        throw new Error("対応していない JSON 形式です。");
+      }
+      const data = bundle.data;
+      if (data.entrySets?.sets?.length) {
+        state.store = {
+          activeSetId: data.entrySets.activeSetId || data.entrySets.sets[0].id,
+          sets: data.entrySets.sets,
+        };
+      }
+      if (Array.isArray(data.patterns)) {
+        state.patterns = data.patterns;
+        selectedPatternId = data.selectedPatternId || state.patterns[0]?.id || null;
+        state.selectedPatternId = selectedPatternId;
+      }
+      if (Array.isArray(data.fareMemory)) {
+        state.fareMemory = data.fareMemory;
+      }
+      selectedEntryId = null;
+      saveState();
+      renderPatterns();
+      renderEntries();
+      refreshInputLimit();
+      updateFareHint();
+    }
+
+    function getActiveSet() {
+      return state.store.sets.find((s) => s.id === state.store.activeSetId) ?? state.store.sets[0];
+    }
+
+    function formatYen(n) {
+      return `¥${Number(n).toLocaleString("ja-JP")}`;
+    }
+
+    function modeLabel(mode) {
+      return mode === "bus" ? "バス等" : "電車";
+    }
+
+    function estimateFare(departure, arrival) {
+      const dep = (departure || "").trim();
+      const arr = (arrival || "").trim();
+      if (!dep || !arr) return 0;
+      const row = state.fareMemory.find(
+        (r) => r.departure === dep && r.arrival === arr
+      );
+      return row?.amount ?? 0;
+    }
+
+    function rememberFare(departure, arrival, amount) {
+      const dep = departure.trim();
+      const arr = arrival.trim();
+      if (!dep || !arr || amount <= 0) return;
+      const idx = state.fareMemory.findIndex(
+        (r) => r.departure === dep && r.arrival === arr
+      );
+      if (idx >= 0) state.fareMemory[idx].amount = amount;
+      else state.fareMemory.push({ departure: dep, arrival: arr, amount });
+    }
+
+    function showBanner(el, text, kind) {
+      if (!text) {
+        el.hidden = true;
+        el.textContent = "";
+        return;
+      }
+      el.hidden = false;
+      el.textContent = text;
+      el.className = "banner " + (kind || "info");
+    }
+
+    let toastTimer;
+    function toast(message, kind) {
+      const el = document.getElementById("globalBanner");
+      showBanner(el, message, kind || "success");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        el.hidden = true;
+      }, 2800);
+    }
+
+    function promptDialog(title, defaultValue) {
+      return new Promise((resolve) => {
+        const dlg = document.getElementById("dialogPrompt");
+        document.getElementById("promptTitle").textContent = title;
+        const input = document.getElementById("promptInput");
+        input.value = defaultValue ?? "";
+        const onOk = () => {
+          cleanup();
+          resolve(input.value);
+        };
+        const onCancel = () => {
+          cleanup();
+          resolve(null);
+        };
+        function cleanup() {
+          dlg.close();
+          document.getElementById("btnPromptOk").removeEventListener("click", onOk);
+          document.getElementById("btnPromptCancel").removeEventListener("click", onCancel);
+        }
+        document.getElementById("btnPromptOk").addEventListener("click", onOk);
+        document.getElementById("btnPromptCancel").addEventListener("click", onCancel);
+        dlg.showModal();
+        input.focus();
+      });
+    }
+
+    let selectedEntryId = null;
+
+    function switchTab(tab) {
+      document.querySelectorAll(".panel").forEach((p) => p.classList.remove("active"));
+      document.querySelectorAll("nav.tabs button").forEach((b) => b.classList.remove("active"));
+      document.getElementById("panel-" + tab).classList.add("active");
+      document.querySelector(`nav.tabs button[data-tab="${tab}"]`).classList.add("active");
+      if (tab === "entries") renderEntries();
+      if (tab === "patterns") renderPatterns();
+      if (tab === "input") refreshInputLimit();
+    }
+
+    function refreshInputLimit() {
+      const set = getActiveSet();
+      const atLimit = set.entries.length >= MAX_ENTRIES;
+      const btn = document.getElementById("btnRegisterInput");
+      btn.disabled = atLimit;
+      showBanner(
+        document.getElementById("inputLimitBanner"),
+        atLimit ? `明細は最大 ${MAX_ENTRIES} 件です。登録タブで整理するか、別セットを作成してください。` : "",
+        "error"
+      );
+    }
+
+    function updateFareHint() {
+      const dep = document.getElementById("inputDeparture").value;
+      const arr = document.getElementById("inputArrival").value;
+      const amt = document.getElementById("inputAmount").value;
+      const hint = document.getElementById("fareHint");
+      if (amt) {
+        hint.textContent = "";
+        return;
+      }
+      const est = estimateFare(dep, arr);
+      hint.textContent = est > 0 ? `履歴からの目安: ${formatYen(est)}` : "";
+    }
+
+    function registerEntry(entry) {
+      const set = getActiveSet();
+      if (set.entries.length >= MAX_ENTRIES) {
+        toast(`明細は最大 ${MAX_ENTRIES} 件です`, "error");
+        return false;
+      }
+      set.entries.push(entry);
+      saveState();
+      return true;
+    }
+
+    function renderEntryListItem(entry) {
+      const li = document.createElement("li");
+      li.className = "entry-card" + (selectedEntryId === entry.id ? " selected" : "");
+      li.dataset.id = entry.id;
+      const route = `${entry.departure} → ${entry.arrival}`;
+      li.innerHTML = `
+        <div class="line1"><span>${escapeHtml(route)}</span><span>${formatYen(entry.amount)}</span></div>
+        <div class="line2">${escapeHtml(entry.date)} · ${escapeHtml(entry.destination || "—")} · ${modeLabel(entry.mode)}${entry.note ? " · " + escapeHtml(entry.note) : ""}</div>
+      `;
+      li.addEventListener("click", () => {
+        selectedEntryId = entry.id === selectedEntryId ? null : entry.id;
+        renderEntries();
+      });
+      return li;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function checkDateOrder(entries) {
+      const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date) || 0);
+      for (let i = 0; i < entries.length; i++) {
+        if (entries[i].id !== sorted[i]?.id) return true;
+      }
+      return false;
+    }
+
+    function renderEntries() {
+      const set = getActiveSet();
+      const select = document.getElementById("entrySetSelect");
+      select.innerHTML = "";
+      state.store.sets.forEach((s) => {
+        const opt = document.createElement("option");
+        opt.value = s.id;
+        opt.textContent = s.name || "（名称未設定）";
+        if (s.id === state.store.activeSetId) opt.selected = true;
+        select.appendChild(opt);
+      });
+
+      const total = set.entries.reduce((sum, e) => sum + e.amount, 0);
+      document.getElementById("entriesSummary").textContent =
+        `${set.entries.length} 件 / 合計 ${formatYen(total)}`;
+
+      const limitEl = document.getElementById("entryLimitBanner");
+      if (set.entries.length >= MAX_ENTRIES - 5) {
+        showBanner(
+          limitEl,
+          set.entries.length >= MAX_ENTRIES
+            ? `明細が ${MAX_ENTRIES} 件に達しました。これ以上は登録できません。`
+            : `あと ${MAX_ENTRIES - set.entries.length} 件で上限（${MAX_ENTRIES} 件）です。`,
+          "info"
+        );
+      } else {
+        limitEl.hidden = true;
+      }
+
+      showBanner(
+        document.getElementById("dateOrderBanner"),
+        checkDateOrder(set.entries) ? "日付順と一覧の並びが一致していません。並びを確認してください。" : "",
+        "error"
+      );
+
+      const list = document.getElementById("entryList");
+      list.innerHTML = "";
+      set.entries.forEach((e) => list.appendChild(renderEntryListItem(e)));
+    }
+
+    let selectedPatternId = state.selectedPatternId;
+
+    function getSelectedPattern() {
+      if (!selectedPatternId) return state.patterns[0] ?? null;
+      return state.patterns.find((p) => p.id === selectedPatternId) ?? null;
+    }
+
+    function patternDetail(p) {
+      const legs = p.legs.map((l) => `${l.departure}→${l.arrival}`).join(" · ");
+      return legs || "（区間なし）";
+    }
+
+    function renderPatternList() {
+      const ul = document.getElementById("patternList");
+      ul.innerHTML = "";
+      document.getElementById("patternCountText").textContent = `${state.patterns.length} 件`;
+      if (!state.patterns.length) {
+        selectedPatternId = null;
+        return;
+      }
+      if (!selectedPatternId || !state.patterns.some((p) => p.id === selectedPatternId)) {
+        selectedPatternId = state.patterns[0].id;
+      }
+      state.selectedPatternId = selectedPatternId;
+      state.patterns.forEach((p) => {
+        const li = document.createElement("li");
+        li.className = p.id === selectedPatternId ? "selected" : "";
+        li.innerHTML = `<div class="title">${escapeHtml(p.name || "（名称未設定）")}</div><div class="detail">${escapeHtml(patternDetail(p))}</div>`;
+        li.addEventListener("click", () => {
+          selectedPatternId = p.id;
+          state.selectedPatternId = p.id;
+          saveState();
+          renderPatterns();
+        });
+        ul.appendChild(li);
+      });
+    }
+
+    function renderLegEditors() {
+      const p = getSelectedPattern();
+      const container = document.getElementById("legsContainer");
+      container.innerHTML = "";
+      if (!p) return;
+
+      document.getElementById("patternName").value = p.name;
+
+      p.legs.forEach((leg, index) => {
+        const block = document.createElement("div");
+        block.className = "leg-block";
+        block.innerHTML = `
+          <header><span>区間 ${index + 1}</span>${p.legs.length > 1 ? `<button type="button" class="danger" data-remove="${index}" style="font-size:11px;padding:4px 8px">削除</button>` : ""}</header>
+          <label class="field-label">出発</label>
+          <input type="text" data-leg="${index}" data-field="departure" value="${escapeAttr(leg.departure)}" />
+          <label class="field-label">到着</label>
+          <input type="text" data-leg="${index}" data-field="arrival" value="${escapeAttr(leg.arrival)}" />
+          <div class="row-2">
+            <div>
+              <label class="field-label">区分</label>
+              <select data-leg="${index}" data-field="mode">
+                <option value="train" ${leg.mode === "train" ? "selected" : ""}>電車</option>
+                <option value="bus" ${leg.mode === "bus" ? "selected" : ""}>バス等</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">金額（0=推定）</label>
+              <input type="number" min="0" data-leg="${index}" data-field="amount" value="${leg.amount || ""}" />
+            </div>
+          </div>
+          <label class="field-label">備考</label>
+          <input type="text" data-leg="${index}" data-field="note" value="${escapeAttr(leg.note)}" />
+        `;
+        container.appendChild(block);
+      });
+
+      container.querySelectorAll("[data-leg]").forEach((el) => {
+        el.addEventListener("input", syncLegsFromDom);
+        el.addEventListener("change", syncLegsFromDom);
+      });
+      container.querySelectorAll("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const idx = Number(btn.dataset.remove);
+          p.legs.splice(idx, 1);
+          if (!p.legs.length) p.legs.push(emptyLeg());
+          renderLegEditors();
+        });
+      });
+    }
+
+    function escapeAttr(s) {
+      return escapeHtml(s).replace(/"/g, "&quot;");
+    }
+
+    function emptyLeg() {
+      return { departure: "", arrival: "", mode: "train", note: "", amount: 0 };
+    }
+
+    function syncLegsFromDom() {
+      const p = getSelectedPattern();
+      if (!p) return;
+      p.name = document.getElementById("patternName").value;
+      const container = document.getElementById("legsContainer");
+      p.legs = p.legs.map((leg, index) => {
+        const get = (field) => {
+          const el = container.querySelector(`[data-leg="${index}"][data-field="${field}"]`);
+          return el ? el.value : leg[field];
+        };
+        const amountRaw = get("amount");
+        return {
+          departure: get("departure"),
+          arrival: get("arrival"),
+          mode: get("mode") === "bus" ? "bus" : "train",
+          note: get("note"),
+          amount: amountRaw === "" ? 0 : Number(amountRaw) || 0,
+        };
+      });
+    }
+
+    function renderPatterns() {
+      renderPatternList();
+      renderLegEditors();
+    }
+
+    document.querySelectorAll("nav.tabs button").forEach((btn) => {
+      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+    });
+
+    document.getElementById("inputDeparture").addEventListener("input", updateFareHint);
+    document.getElementById("inputArrival").addEventListener("input", updateFareHint);
+    document.getElementById("inputAmount").addEventListener("input", updateFareHint);
+
+    document.getElementById("btnRegisterInput").addEventListener("click", () => {
+      const date = document.getElementById("inputDate").value;
+      if (!date) {
+        toast("日付を選択してください", "error");
+        return;
+      }
+      const departure = document.getElementById("inputDeparture").value.trim();
+      const arrival = document.getElementById("inputArrival").value.trim();
+      if (!departure || !arrival) {
+        toast("出発と到着を入力してください", "error");
+        return;
+      }
+      let amount = Number(document.getElementById("inputAmount").value);
+      if (!amount || amount < 1) {
+        amount = estimateFare(departure, arrival);
+        if (amount < 1) {
+          toast("金額を入力するか、履歴に区間を登録してください", "error");
+          return;
+        }
+      }
+      rememberFare(departure, arrival, amount);
+      const ok = registerEntry({
+        id: uid(),
+        date,
+        destination: document.getElementById("inputDestination").value.trim(),
+        departure,
+        arrival,
+        note: document.getElementById("inputNote").value.trim(),
+        amount,
+        mode: document.getElementById("inputMode").value === "bus" ? "bus" : "train",
+      });
+      if (ok) {
+        toast("明細に登録しました");
+        refreshInputLimit();
+      }
+    });
+
+    document.getElementById("btnRecallHistory").addEventListener("click", () => {
+      const list = document.getElementById("historyList");
+      list.innerHTML = "";
+      if (!state.fareMemory.length) {
+        list.innerHTML = "<p class=\"hint\">履歴がありません</p>";
+      } else {
+        state.fareMemory.forEach((row) => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "history-item";
+          btn.textContent = `${row.departure} → ${row.arrival}（${formatYen(row.amount)}）`;
+          btn.addEventListener("click", () => {
+            document.getElementById("inputDeparture").value = row.departure;
+            document.getElementById("inputArrival").value = row.arrival;
+            document.getElementById("inputAmount").value = row.amount;
+            updateFareHint();
+            document.getElementById("dialogHistory").close();
+          });
+          list.appendChild(btn);
+        });
+      }
+      document.getElementById("dialogHistory").showModal();
+    });
+
+    document.getElementById("btnCloseHistory").addEventListener("click", () => {
+      document.getElementById("dialogHistory").close();
+    });
+
+    document.getElementById("btnNewPattern").addEventListener("click", () => {
+      const p = { id: uid(), name: "新しいパターン", listColor: null, legs: [emptyLeg()] };
+      state.patterns.push(p);
+      selectedPatternId = p.id;
+      state.selectedPatternId = p.id;
+      saveState();
+      renderPatterns();
+    });
+
+    document.getElementById("btnDeletePattern").addEventListener("click", () => {
+      if (!selectedPatternId || state.patterns.length <= 1) {
+        toast(state.patterns.length <= 1 ? "最後の1件は削除できません" : "パターンを選択してください", "error");
+        return;
+      }
+      state.patterns = state.patterns.filter((p) => p.id !== selectedPatternId);
+      selectedPatternId = state.patterns[0]?.id ?? null;
+      state.selectedPatternId = selectedPatternId;
+      saveState();
+      renderPatterns();
+    });
+
+    document.getElementById("patternName").addEventListener("input", () => {
+      const p = getSelectedPattern();
+      if (p) p.name = document.getElementById("patternName").value;
+    });
+
+    document.getElementById("btnAddLeg").addEventListener("click", () => {
+      syncLegsFromDom();
+      const p = getSelectedPattern();
+      if (!p) return;
+      p.legs.push(emptyLeg());
+      renderLegEditors();
+    });
+
+    document.getElementById("btnReversePattern").addEventListener("click", () => {
+      syncLegsFromDom();
+      const p = getSelectedPattern();
+      if (!p || !p.legs.length) return;
+      p.legs = [...p.legs].reverse().map((leg) => ({
+        departure: leg.arrival,
+        arrival: leg.departure,
+        mode: leg.mode,
+        note: leg.note,
+        amount: leg.amount,
+      }));
+      if (p.name && !p.name.includes("逆")) p.name = p.name + "（逆）";
+      renderLegEditors();
+    });
+
+    document.getElementById("btnSavePattern").addEventListener("click", () => {
+      syncLegsFromDom();
+      const p = getSelectedPattern();
+      if (!p) return;
+      if (!p.name.trim()) {
+        toast("パターン名を入力してください", "error");
+        return;
+      }
+      saveState();
+      renderPatternList();
+      toast("パターンを保存しました");
+    });
+
+    document.getElementById("btnApplyPattern").addEventListener("click", () => {
+      syncLegsFromDom();
+      const p = getSelectedPattern();
+      if (!p) return;
+      const date = document.getElementById("applyDate").value;
+      if (!date) {
+        toast("日付を選択してください", "error");
+        return;
+      }
+      const dest =
+        document.getElementById("applyDestination").value.trim() || p.name.trim();
+      const set = getActiveSet();
+      const newEntries = [];
+      for (const leg of p.legs) {
+        if (!leg.departure.trim() || !leg.arrival.trim()) continue;
+        let amount = leg.amount;
+        if (!amount || amount < 1) amount = estimateFare(leg.departure, leg.arrival);
+        if (amount < 1) {
+          toast(`運賃が不明: ${leg.departure} → ${leg.arrival}`, "error");
+          return;
+        }
+        rememberFare(leg.departure, leg.arrival, amount);
+        newEntries.push({
+          id: uid(),
+          date,
+          destination: dest,
+          departure: leg.departure.trim(),
+          arrival: leg.arrival.trim(),
+          note: leg.note || "",
+          amount,
+          mode: leg.mode === "bus" ? "bus" : "train",
+        });
+      }
+      if (!newEntries.length) {
+        toast("有効な区間がありません", "error");
+        return;
+      }
+      if (set.entries.length + newEntries.length > MAX_ENTRIES) {
+        toast(`登録すると ${MAX_ENTRIES} 件を超えます（現在 ${set.entries.length} 件）`, "error");
+        return;
+      }
+      set.entries.push(...newEntries);
+      saveState();
+      toast(`${newEntries.length} 件を明細に登録しました`);
+      refreshInputLimit();
+    });
+
+    document.getElementById("entrySetSelect").addEventListener("change", (e) => {
+      state.store.activeSetId = e.target.value;
+      selectedEntryId = null;
+      saveState();
+      renderEntries();
+      refreshInputLimit();
+    });
+
+    document.getElementById("btnNewSet").addEventListener("click", async () => {
+      const name = await promptDialog("新規セット名", "新しいセット");
+      if (name === null) return;
+      const id = uid();
+      state.store.sets.push({
+        id,
+        name: name.trim() || "新しいセット",
+        nameManuallySet: true,
+        entries: [],
+      });
+      state.store.activeSetId = id;
+      selectedEntryId = null;
+      saveState();
+      renderEntries();
+      refreshInputLimit();
+    });
+
+    document.getElementById("btnRenameSet").addEventListener("click", async () => {
+      const set = getActiveSet();
+      const name = await promptDialog("セット名", set.name);
+      if (name === null) return;
+      set.name = name.trim() || set.name;
+      set.nameManuallySet = true;
+      saveState();
+      renderEntries();
+    });
+
+    document.getElementById("btnDeleteSet").addEventListener("click", async () => {
+      if (state.store.sets.length <= 1) {
+        toast("最後のセットは削除できません", "error");
+        return;
+      }
+      const set = getActiveSet();
+      if (!confirm(`「${set.name}」を削除しますか？`)) return;
+      state.store.sets = state.store.sets.filter((s) => s.id !== set.id);
+      state.store.activeSetId = state.store.sets[0].id;
+      selectedEntryId = null;
+      saveState();
+      renderEntries();
+      refreshInputLimit();
+    });
+
+    document.getElementById("btnEditEntry").addEventListener("click", async () => {
+      const set = getActiveSet();
+      const entry = set.entries.find((e) => e.id === selectedEntryId);
+      if (!entry) {
+        toast("編集する行を選択してください", "error");
+        return;
+      }
+      const dest = await promptDialog("目的地", entry.destination);
+      if (dest === null) return;
+      entry.destination = dest;
+      const note = await promptDialog("備考", entry.note);
+      if (note === null) return;
+      entry.note = note;
+      saveState();
+      renderEntries();
+      toast("更新しました");
+    });
+
+    document.getElementById("btnBatchDestination").addEventListener("click", async () => {
+      const set = getActiveSet();
+      if (!set.entries.length) return;
+      const dest = await promptDialog("すべての行の目的地", set.entries[0].destination);
+      if (dest === null) return;
+      set.entries.forEach((e) => {
+        e.destination = dest;
+      });
+      saveState();
+      renderEntries();
+      toast("目的地を一括更新しました");
+    });
+
+    document.getElementById("btnDeleteEntry").addEventListener("click", () => {
+      const set = getActiveSet();
+      if (!selectedEntryId) {
+        toast("削除する行を選択してください", "error");
+        return;
+      }
+      set.entries = set.entries.filter((e) => e.id !== selectedEntryId);
+      selectedEntryId = null;
+      saveState();
+      renderEntries();
+      refreshInputLimit();
+    });
+
+    document.getElementById("btnClearAll").addEventListener("click", () => {
+      const set = getActiveSet();
+      if (!set.entries.length) return;
+      if (!confirm("すべての明細を削除しますか？")) return;
+      set.entries = [];
+      selectedEntryId = null;
+      saveState();
+      renderEntries();
+      refreshInputLimit();
+    });
+
+    const PRE_SYNC_BACKUP_KEY = "keirohi-mobile-pre-sync-v1";
+
+    function createPreSyncBackup() {
+      const payload = {
+        savedAt: new Date().toISOString(),
+        state: JSON.parse(JSON.stringify(state)),
+      };
+      localStorage.setItem(PRE_SYNC_BACKUP_KEY, JSON.stringify(payload));
+    }
+
+    function getPreSyncBackupMeta() {
+      try {
+        const raw = localStorage.getItem(PRE_SYNC_BACKUP_KEY);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return parsed.savedAt ? { savedAt: parsed.savedAt } : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function restorePreSyncBackup() {
+      const raw = localStorage.getItem(PRE_SYNC_BACKUP_KEY);
+      if (!raw) return false;
+      const parsed = JSON.parse(raw);
+      if (!parsed.state) return false;
+      state = parsed.state;
+      selectedPatternId = state.selectedPatternId;
+      selectedEntryId = null;
+      saveState();
+      renderPatterns();
+      renderEntries();
+      refreshInputLimit();
+      updateFareHint();
+      return true;
+    }
+
+    function formatBackupTime(iso) {
+      if (!iso) return "—";
+      const d = new Date(iso);
+      return d.toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
+    }
+
+    function compareVersions(a, b) {
+      const pa = String(a).split(".").map((n) => Number(n) || 0);
+      const pb = String(b).split(".").map((n) => Number(n) || 0);
+      const len = Math.max(pa.length, pb.length);
+      for (let i = 0; i < len; i++) {
+        const da = pa[i] || 0;
+        const db = pb[i] || 0;
+        if (da !== db) {
+          return da > db ? 1 : -1;
+        }
+      }
+      return 0;
+    }
+
+    function isSecureOrigin() {
+      const host = location.hostname;
+      return location.protocol === "https:" || host === "localhost" || host === "127.0.0.1";
+    }
+
+    function showUpdateBanner(text, mode) {
+      const banner = document.getElementById("updateBanner");
+      document.getElementById("updateBannerText").textContent = text;
+      banner.dataset.mode = mode || "reload";
+      banner.hidden = false;
+    }
+
+    async function fetchPublishedVersion() {
+      const res = await fetch(`./version.json?t=${Date.now()}`, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("version.json を取得できません");
+      }
+      const data = await res.json();
+      return data.version || "";
+    }
+
+    async function checkAppUpdate({ quiet } = { quiet: false }) {
+      if (!navigator.onLine) {
+        if (!quiet) {
+          toast("オフラインのため更新を確認できません", "info");
+        }
+        return;
+      }
+      if (location.protocol === "file:") {
+        if (!quiet) {
+          toast("ZIP 版は自動更新できません。URL 版（GitHub Pages）をホーム画面に追加すると再読み込みだけで更新できます。", "info");
+        }
+        return;
+      }
+      if (!isSecureOrigin()) {
+        if (!quiet) {
+          toast("この URL では自動更新を利用できません", "info");
+        }
+        return;
+      }
+      try {
+        const latest = await fetchPublishedVersion();
+        if (!latest) {
+          if (!quiet) {
+            toast("バージョン情報を取得できませんでした", "error");
+          }
+          return;
+        }
+        if (compareVersions(latest, APP_VERSION) > 0) {
+          showUpdateBanner(`新しいバージョン ${latest} があります。再読み込みで更新されます。`, "reload");
+          if (!quiet) {
+            toast(`更新あり: v${latest}`);
+          }
+        } else if (!quiet) {
+          toast(`最新です（v${APP_VERSION}）`);
+        }
+      } catch (err) {
+        if (!quiet) {
+          toast(err.message || "更新確認に失敗しました", "error");
+        }
+      }
+    }
+
+    function renderDataShareUi() {
+      const backup = getPreSyncBackupMeta();
+      document.getElementById("localBackupStatusText").textContent = backup
+        ? `${formatBackupTime(backup.savedAt)} 時点`
+        : "なし（取り込み時に自動作成）";
+      document.getElementById("btnRestoreLocal").disabled = !backup;
+      document.getElementById("appVersionLine").textContent = `この端末のバージョン: v${APP_VERSION}`;
+      const hint = document.getElementById("easyUpdateHint");
+      if (location.protocol === "file:") {
+        hint.textContent =
+          `更新が楽な URL 版: ${GITHUB_PAGES_URL} を Chrome で開き「ホーム画面に追加」してください（GitHub Pages 有効化後）。`;
+      } else if (isSecureOrigin()) {
+        hint.textContent = "URL 版はオンラインで開くと更新を検出し、再読み込みだけで反映できます。";
+      } else {
+        hint.textContent = "";
+      }
+    }
+
+    function updateOfflineSubtitle() {
+      const el = document.getElementById("headerSubtitle");
+      if (!el) {
+        return;
+      }
+      if (location.protocol === "file:") {
+        el.textContent = "オフライン利用 · データはこの端末のブラウザ内";
+        return;
+      }
+      el.textContent = navigator.onLine
+        ? "モバイル Web · 共有で JSON を渡せます（PWA 対応）"
+        : "オフライン · 編集は可能";
+    }
+
+    document.getElementById("btnOpenDataShare").addEventListener("click", () => {
+      renderDataShareUi();
+      document.getElementById("dialogDataShare").showModal();
+    });
+
+    document.getElementById("btnCheckUpdate").addEventListener("click", () => {
+      checkAppUpdate({ quiet: false });
+    });
+
+    document.getElementById("btnApplyUpdate").addEventListener("click", () => {
+      const mode = document.getElementById("updateBanner").dataset.mode;
+      if (mode === "open") {
+        window.open(GITHUB_RELEASES_URL, "_blank", "noopener,noreferrer");
+        return;
+      }
+      location.reload();
+    });
+
+    document.getElementById("btnDismissUpdate").addEventListener("click", () => {
+      document.getElementById("updateBanner").hidden = true;
+    });
+
+    document.getElementById("btnCloseDataShare").addEventListener("click", () => {
+      document.getElementById("dialogDataShare").close();
+    });
+
+    document.getElementById("btnShareJson").addEventListener("click", async () => {
+      try {
+        await shareExportJson();
+      } catch (err) {
+        toast(err.message || String(err), "error");
+      }
+    });
+
+    document.getElementById("btnImportJson").addEventListener("click", () => {
+      document.getElementById("importFileInput").click();
+    });
+
+    document.getElementById("importFileInput").addEventListener("change", async (event) => {
+      const input = event.target;
+      const file = input.files?.[0];
+      input.value = "";
+      if (!file) {
+        return;
+      }
+      try {
+        const text = await file.text();
+        const bundle = JSON.parse(text);
+        if (!confirm("JSON の内容で現在のデータを上書きします。よろしいですか？")) {
+          return;
+        }
+        createPreSyncBackup();
+        applyImportBundle(bundle);
+        renderDataShareUi();
+        toast("JSON を取り込みました");
+        document.getElementById("dialogDataShare").close();
+      } catch (err) {
+        toast(err.message || "取り込みに失敗しました", "error");
+      }
+    });
+
+    document.getElementById("btnRestoreLocal").addEventListener("click", () => {
+      if (!getPreSyncBackupMeta()) {
+        toast("復元できるバックアップがありません", "error");
+        return;
+      }
+      if (!confirm("取り込み前に退避したデータに戻します。現在の内容は上書きされます。よろしいですか？")) {
+        return;
+      }
+      if (restorePreSyncBackup()) {
+        renderDataShareUi();
+        toast("取り込み前のデータに戻しました");
+      } else {
+        toast("復元に失敗しました", "error");
+      }
+    });
+
+    renderDataShareUi();
+    updateOfflineSubtitle();
+    window.addEventListener("online", updateOfflineSubtitle);
+    window.addEventListener("offline", updateOfflineSubtitle);
+
+    if ("serviceWorker" in navigator && isSecureOrigin()) {
+      navigator.serviceWorker
+        .register("./sw.js")
+        .then((registration) => {
+          registration.addEventListener("updatefound", () => {
+            const installing = registration.installing;
+            if (!installing) {
+              return;
+            }
+            installing.addEventListener("statechange", () => {
+              if (installing.state === "installed" && navigator.serviceWorker.controller) {
+                showUpdateBanner("アプリの更新を取得しました。再読み込みで反映されます。", "reload");
+              }
+            });
+          });
+          setInterval(() => registration.update(), 60 * 60 * 1000);
+        })
+        .catch(() => {});
+    }
+
+    if (isSecureOrigin()) {
+      checkAppUpdate({ quiet: true });
+    }
+
+    document.getElementById("inputDate").value = todayIso();
+    document.getElementById("applyDate").value = todayIso();
+    if (!state.selectedPatternId && state.patterns[0]) {
+      selectedPatternId = state.patterns[0].id;
+      state.selectedPatternId = selectedPatternId;
+    }
+    renderPatterns();
+    renderEntries();
+    refreshInputLimit();
+    updateFareHint();
+  </script>
+</body>
+</html>

@@ -15,3 +15,7 @@ Keirohi.Core/obj/
 Keirohi.Updates/bin/
 Keirohi.Updates/obj/
 *.user
+
+# Google OAuth（デスクトップ client_secret 含む JSON）
+**/google-oauth-client.json
+**/google-oauth-tokens/

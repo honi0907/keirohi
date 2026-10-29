@@ -27,21 +27,29 @@ public partial class DestinationBatchWindow : Window
         InitializeComponent();
         this.sections = sections;
         BuildUi();
-        HintText.Text = $"対象 {sections.Sum(s => s.Legs.Sum(l => l.Count))} 件 / {sections.Sum(s => s.Legs.Count)} 区間";
+        RefreshHint();
+        ApplyMissingOnlyFilter();
+    }
+
+    private void ShowMissingOnlyCheck_Changed(object? sender, RoutedEventArgs e)
+    {
+        ApplyMissingOnlyFilter();
+        RefreshHint();
     }
 
     private void BuildUi()
     {
         foreach (var section in sections)
         {
-            SectionHost.Children.Add(new TextBlock
+            var dateBlock = new TextBlock
             {
                 FontWeight = FontWeight.SemiBold,
                 Text = section.Date,
                 Margin = new Thickness(0, 4, 0, 0),
-            });
+            };
+            SectionHost.Children.Add(dateBlock);
 
-            var sectionUi = new SectionUi(section);
+            var sectionUi = new SectionUi(section, dateBlock);
             sectionUis.Add(sectionUi);
 
             foreach (var leg in section.Legs)
@@ -97,12 +105,49 @@ public partial class DestinationBatchWindow : Window
                 };
 
                 destinationBoxes[leg] = box;
-                sectionUi.Rows.Add(new SectionRow(leg, box));
+                sectionUi.Rows.Add(new SectionRow(leg, grid, box));
 
                 SectionHost.Children.Add(grid);
                 SectionHost.Children.Add(box);
             }
         }
+    }
+
+    private void ApplyMissingOnlyFilter()
+    {
+        var missingOnly = ShowMissingOnlyCheck.IsChecked == true;
+        foreach (var sectionUi in sectionUis)
+        {
+            var anyVisible = false;
+            foreach (var row in sectionUi.Rows)
+            {
+                var show = !missingOnly || row.Leg.IncludesMissingDestination;
+                row.RouteGrid.IsVisible = show;
+                row.Box.IsVisible = show;
+                if (show)
+                {
+                    anyVisible = true;
+                }
+            }
+
+            sectionUi.DateBlock.IsVisible = anyVisible;
+        }
+    }
+
+    private void RefreshHint()
+    {
+        var entryCount = sections.Sum(s => s.Legs.Sum(l => l.Count));
+        var legCount = sections.Sum(s => s.Legs.Count);
+        var missingLegCount = sections.Sum(s => s.Legs.Count(l => l.IncludesMissingDestination));
+        if (ShowMissingOnlyCheck.IsChecked == true)
+        {
+            HintText.Text = $"表示 {missingLegCount} 区間（未入力） / 全 {entryCount} 件・{legCount} 区間";
+            return;
+        }
+
+        HintText.Text = missingLegCount > 0
+            ? $"対象 {entryCount} 件 / {legCount} 区間（未入力 {missingLegCount} 区間）"
+            : $"対象 {entryCount} 件 / {legCount} 区間";
     }
 
     private void CascadeFillBelow(SectionUi sectionUi, int fromRowIndex, string text)
@@ -144,12 +189,14 @@ public partial class DestinationBatchWindow : Window
 
     private void Later_Click(object? sender, RoutedEventArgs e) => Close(false);
 
-    private sealed class SectionUi(DestinationDateSection section)
+    private sealed class SectionUi(DestinationDateSection section, TextBlock dateBlock)
     {
         public DestinationDateSection Section { get; } = section;
+
+        public TextBlock DateBlock { get; } = dateBlock;
 
         public List<SectionRow> Rows { get; } = [];
     }
 
-    private sealed record SectionRow(DestinationLegDraft Leg, TextBox Box);
+    private sealed record SectionRow(DestinationLegDraft Leg, Grid RouteGrid, TextBox Box);
 }
