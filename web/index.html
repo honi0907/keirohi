@@ -619,7 +619,7 @@
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.10";
+    const APP_VERSION = "1.1.11";
     let shareExportInFlight = false;
     const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
     const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
@@ -756,16 +756,18 @@
 
     function buildShareExportPayload(json, filename) {
       const isAndroid = /Android/i.test(navigator.userAgent);
-      const txtName = filename.replace(/\.json$/i, ".txt");
-      /** title/text と files の同時指定は Android で DataError になりやすい */
+      /** title/text と files の同時指定は Android で DataError になりやすい。拡張子は .json のまま */
+      const jsonFile = (type) => new File([json], filename, { type });
       const candidates = isAndroid
         ? [
-            { files: [new File([json], txtName, { type: "text/plain" })] },
+            { files: [jsonFile("application/json")] },
+            { files: [jsonFile("text/plain")] },
             ...(json.length < 900_000 ? [{ text: json }] : []),
-            { files: [new File([json], filename, { type: "application/octet-stream" })] },
+            { files: [jsonFile("application/octet-stream")] },
           ]
         : [
-            { files: [new File([json], filename, { type: "text/plain" })] },
+            { files: [jsonFile("application/json")] },
+            { files: [jsonFile("text/plain")] },
             ...(json.length < 900_000 ? [{ title: "通勤経路費データ", text: json }] : []),
           ];
 
