@@ -28,8 +28,8 @@
       <Button Content="保存" Click="Save_Click" Classes="accent"/>
       <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">
         <StackPanel Spacing="8">
-          <TextBlock FontWeight="SemiBold" Text="Google Drive 同期"/>
-          <TextBlock Opacity="0.75" Text="PC のデータ（明細・パターン・設定・運賃履歴）を Drive フォルダと同期します。初回は docs/google-drive-setup.md の手順で OAuth JSON を配置してください。" TextWrapping="Wrap"/>
+          <TextBlock FontWeight="SemiBold" Text="Google Drive 同期（推奨）"/>
+          <TextBlock Opacity="0.75" Text="モバイル Web と同じ Drive フォルダ内の JSON（entry-sets / patterns / fare-memory）を同期します。PC だけ settings.json も同期。初回は docs/google-drive-setup.md の OAuth 設定が必要です。" TextWrapping="Wrap"/>
           <TextBlock x:Name="DriveSyncStatusText" Opacity="0.85" TextWrapping="Wrap"/>
           <TextBox x:Name="DriveFolderBox" IsReadOnly="True" Watermark="同期フォルダ（未設定）"/>
           <StackPanel Orientation="Horizontal" Spacing="8">
@@ -42,6 +42,14 @@
           <TextBlock x:Name="LocalBackupStatusText" Opacity="0.75" TextWrapping="Wrap"/>
           <Button x:Name="RestoreLocalButton" Content="同期前のローカルデータに戻す" MinHeight="36" Click="RestoreLocal_Click"/>
           <TextBlock Opacity="0.65" FontSize="11" Text="「今すぐ同期」の直前に自動で退避したデータに戻します。" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+      <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">
+        <StackPanel Spacing="8">
+          <TextBlock FontWeight="SemiBold" Text="手動（JSON ファイル）"/>
+          <TextBlock Opacity="0.75" Text="Drive が使えないときの予備。モバイル Web と同じ JSON 形式です（設定は含みません）。" TextWrapping="Wrap"/>
+          <Button Content="JSON を書き出す…" MinHeight="36" Click="ManualShareExport_Click"/>
+          <Button Content="JSON を取り込む…" MinHeight="36" Click="ManualShareImport_Click"/>
         </StackPanel>
       </Border>
       <Border Padding="12" CornerRadius="8" BorderThickness="1" BorderBrush="{DynamicResource ThemeBorderLowBrush}">

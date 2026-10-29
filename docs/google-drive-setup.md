@@ -1,6 +1,6 @@
 # Google Drive 同期のセットアップ
 
-通勤経路費の **デスクトップ（Avalonia）** と **モバイル Web** で同じ Drive フォルダ内の JSON を同期します。
+通勤経路費の **デスクトップ（Avalonia）** と **モバイル Web** で、同じ Drive フォルダ内の JSON を同期します（**推奨**）。手動 JSON 共有は予備です。
 
 ## 1. Google Cloud プロジェクト
 
@@ -26,7 +26,8 @@
 
 1. 同じプロジェクトで **OAuth クライアント ID** を **Web アプリケーション** として追加
 2. **承認済みの JavaScript 生成元** にローカル開発 URL を追加（例: `http://localhost:8765`）
-3. `web/google-config.js` を作成（`web/google-config.sample.js` をコピー）し、`clientId` を記入
+3. `web/google-config.js` の `clientId` を記入（リポジトリ同梱の空ファイルを編集するか、`google-config.sample.js` をコピー）
+4. **承認済みの JavaScript 生成元** に GitHub Pages の URL も追加（例: `https://honi0907.github.io`）
 
 ```javascript
 window.KEIROHI_GOOGLE = {
@@ -34,12 +35,13 @@ window.KEIROHI_GOOGLE = {
 };
 ```
 
-`google-config.js` は `.gitignore` 済み（秘密情報をコミットしないため）。
+`clientId` は公開してよい値ですが、リポジトリにコミットするかは任意です（GitHub Pages では `web/google-config.js` がそのまま配信されます）。
 
 ## 4. 同期フォルダ
 
 - 設定で付けたフォルダ名（既定: `通勤経路費`）の Drive フォルダを作成または再利用します
-- 中身: `entry-sets.json`, `patterns.json`, `fare-memory.json`, `settings.json`（PC 形式）
+- 中身: `entry-sets.json`, `patterns.json`, `fare-memory.json`（共通）、`settings.json`（**PC のみ**）
+- モバイル: アプリ上部 **共有** → **Google でログイン** → **今すぐ同期**（フォルダ名は PC と同じ「通勤経路費」など）
 
 ## 5. 競合と復元
 

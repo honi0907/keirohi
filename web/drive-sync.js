@@ -189,13 +189,21 @@
       }
       const folderId = folder.id;
       const uploads = await hooks.buildUploadPayload(folderId);
-      const localRevisionMs = hooks.getLocalRevisionMs ? hooks.getLocalRevisionMs() : 0;
+      const syncFileNames = hooks.syncFileNames || SYNC_FILES;
       let downloadedAny = false;
-      const names = new Set([...SYNC_FILES, ...Object.keys(uploads)]);
+      const names = new Set([...syncFileNames, ...Object.keys(uploads)]);
 
       for (const fileName of names) {
+        if (!syncFileNames.includes(fileName)) {
+          continue;
+        }
         const remote = await findFileInFolder(folderId, fileName);
         const localText = uploads[fileName];
+        const localRevisionMs = hooks.getFileLocalRevisionMs
+          ? hooks.getFileLocalRevisionMs(fileName)
+          : hooks.getLocalRevisionMs
+            ? hooks.getLocalRevisionMs()
+            : 0;
         const remoteMod = remote?.modifiedTime ? Date.parse(remote.modifiedTime) : 0;
 
         if (remote && remoteMod > localRevisionMs) {

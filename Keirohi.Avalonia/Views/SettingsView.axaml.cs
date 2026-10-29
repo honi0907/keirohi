@@ -146,6 +146,28 @@ public partial class SettingsView : UserControl
         }
     }
 
+    private async void ManualShareExport_Click(object? sender, RoutedEventArgs e)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
+        var (success, message) = await ManualDataShareHelper.TryExportAsync(owner);
+        UpdateStatusText.Text = message;
+        if (success)
+        {
+            await DialogService.ShowOkAsync("JSON を書き出しました", message, owner);
+        }
+    }
+
+    private async void ManualShareImport_Click(object? sender, RoutedEventArgs e)
+    {
+        var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;
+        var (success, message) = await ManualDataShareHelper.TryImportAsync(owner);
+        UpdateStatusText.Text = message;
+        if (success)
+        {
+            RefreshDriveSyncUi();
+        }
+    }
+
     private async void RestoreLocal_Click(object? sender, RoutedEventArgs e)
     {
         var owner = TopLevel.GetTopLevel(this) as Window ?? AppHost.MainWindowInstance;

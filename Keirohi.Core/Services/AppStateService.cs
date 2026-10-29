@@ -550,6 +550,70 @@ public sealed class AppStateService
         Changed?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>モバイル Web と共通の JSON 共有用書き出し。</summary>
+    public string BuildManualShareJson()
+    {
+        var storeClone = JsonSerializer.Deserialize<EntrySetStore>(
+            JsonSerializer.Serialize(entrySetStore, JsonOptions),
+            JsonOptions)!;
+        var patternsClone = JsonSerializer.Deserialize<List<RoutePattern>>(
+            JsonSerializer.Serialize(Patterns, JsonOptions),
+            JsonOptions)!;
+
+        var bundle = new ManualDataShareBundle
+        {
+            FormatVersion = 1,
+            ExportedAt = DateTimeOffset.Now,
+            App = "keirohi-avalonia",
+            Data = new ManualDataShareData
+            {
+                EntrySets = storeClone,
+                Patterns = patternsClone,
+                FareMemory = GetFareMemory()
+                    .Select(row => new FareMemoryRow
+                    {
+                        Departure = row.Departure,
+                        Arrival = row.Arrival,
+                        Amount = row.Amount,
+                    })
+                    .ToList(),
+            },
+        };
+        return JsonSerializer.Serialize(bundle, JsonOptions);
+    }
+
+    /// <summary>モバイル Web 等からの JSON 共有を取り込み（設定は変更しない）。</summary>
+    public void ImportManualShareJson(string json)
+    {
+        var bundle = JsonSerializer.Deserialize<ManualDataShareBundle>(json, JsonOptions)
+            ?? throw new InvalidOperationException("JSON を読み取れませんでした。");
+        if (bundle.FormatVersion != 1 || bundle.Data is null)
+        {
+            throw new InvalidOperationException("対応していない JSON 形式です。");
+        }
+
+        ImportManualShareData(bundle.Data);
+    }
+
+    private void ImportManualShareData(ManualDataShareData data)
+    {
+        if (data.EntrySets?.Sets is not { Count: > 0 })
+        {
+            throw new InvalidOperationException("明細セット（entrySets）が空です。");
+        }
+
+        entrySetStore = data.EntrySets;
+        if (entrySetStore.Sets.All(s => s.Id != entrySetStore.ActiveSetId))
+        {
+            entrySetStore.ActiveSetId = entrySetStore.Sets[0].Id;
+        }
+
+        Patterns = data.Patterns ?? [];
+        ReplaceFareMemory(data.FareMemory ?? []);
+        Save();
+        Changed?.Invoke(this, EventArgs.Empty);
+    }
+
     private EntrySet GetActiveSet()
     {
         var active = entrySetStore.Sets.FirstOrDefault(s => s.Id == entrySetStore.ActiveSetId);

@@ -9,6 +9,9 @@ $include = @(
     "version.json",
     "manifest.webmanifest",
     "sw.js",
+    "drive-sync.js",
+    "google-config.js",
+    "google-config.sample.js",
     "OFFLINE.md",
     "icons"
 )
