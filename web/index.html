@@ -619,7 +619,9 @@
   <script>
     const STORAGE_KEY = "keirohi-mobile-prototype-v1";
     const MAX_ENTRIES = 54;
-    const APP_VERSION = "1.1.12";
+    const APP_VERSION = "1.1.13";
+    /** @type {ServiceWorkerRegistration | undefined} */
+    let swRegistration;
     let shareExportInFlight = false;
     const GITHUB_PAGES_URL = "https://honi0907.github.io/keirohi/";
     const GITHUB_RELEASES_URL = "https://github.com/honi0907/keirohi/releases";
@@ -1529,6 +1531,24 @@
       return data.version || "";
     }
 
+    async function refreshServiceWorker() {
+      if (!swRegistration) {
+        return;
+      }
+      try {
+        await swRegistration.update();
+      } catch {
+        /* ignore */
+      }
+    }
+
+    function activateWaitingServiceWorker() {
+      const waiting = swRegistration?.waiting;
+      if (waiting) {
+        waiting.postMessage({ type: "SKIP_WAITING" });
+      }
+    }
+
     async function checkAppUpdate({ quiet } = { quiet: false }) {
       if (!navigator.onLine) {
         if (!quiet) {
@@ -1549,6 +1569,7 @@
         return;
       }
       try {
+        await refreshServiceWorker();
         const latest = await fetchPublishedVersion();
         if (!latest) {
           if (!quiet) {
@@ -1617,12 +1638,14 @@
       checkAppUpdate({ quiet: false });
     });
 
-    document.getElementById("btnApplyUpdate").addEventListener("click", () => {
+    document.getElementById("btnApplyUpdate").addEventListener("click", async () => {
       const mode = document.getElementById("updateBanner").dataset.mode;
       if (mode === "open") {
         window.open(GITHUB_RELEASES_URL, "_blank", "noopener,noreferrer");
         return;
       }
+      await refreshServiceWorker();
+      activateWaitingServiceWorker();
       location.reload();
     });
 
@@ -1694,6 +1717,7 @@
       navigator.serviceWorker
         .register("./sw.js")
         .then((registration) => {
+          swRegistration = registration;
           registration.addEventListener("updatefound", () => {
             const installing = registration.installing;
             if (!installing) {
@@ -1701,13 +1725,24 @@
             }
             installing.addEventListener("statechange", () => {
               if (installing.state === "installed" && navigator.serviceWorker.controller) {
-                showUpdateBanner("アプリの更新を取得しました。再読み込みで反映されます。", "reload");
+                showUpdateBanner("アプリの更新を取得しました。「再読み込み」で反映されます。", "reload");
               }
             });
           });
-          setInterval(() => registration.update(), 60 * 60 * 1000);
+          return registration.update();
         })
         .catch(() => {});
+
+      setInterval(() => {
+        refreshServiceWorker();
+      }, 15 * 60 * 1000);
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && navigator.onLine) {
+          refreshServiceWorker();
+          checkAppUpdate({ quiet: true });
+        }
+      });
     }
 
     if (isSecureOrigin()) {

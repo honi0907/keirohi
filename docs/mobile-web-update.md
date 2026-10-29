@@ -16,4 +16,6 @@
 
 `web/version.json` と `index.html` 内の `APP_VERSION` を上げて push すると更新が検出されます。
 
+Service Worker は **index.html / version.json をネットワーク優先**（オフライン時のみキャッシュ）にしているため、再読み込みで古い HTML が残り続ける問題を避けます。更新が反映されないときは **共有 → 更新を確認** か、Chrome で URL を直接開き直してください。
+
 Release 用 ZIP は [Pack-MobileWebOffline.ps1](../scripts/Pack-MobileWebOffline.ps1) で引き続き作成できます（オフライン専用向け）。
